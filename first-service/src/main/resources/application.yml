@@ -1,7 +1,15 @@
 spring:
   application:
     name: first-service
+  threads:
+    virtual:
+      enabled: true
 
 server:
   servlet:
     context-path: /
+  error:
+    include-stacktrace: ON_PARAM
+  tomcat:
+    threads:
+      max: 20
