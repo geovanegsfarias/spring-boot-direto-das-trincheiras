@@ -4,15 +4,15 @@ import academy.devdojo.domain.Anime;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
 @RequestMapping("v1/animes")
 public class AnimeController {
-    private Anime animeObject = new Anime();
 
     @GetMapping
     public List<Anime> listAll(@RequestParam(required = false) String name) {
-        var animes = animeObject.listAnimes();
+        var animes = Anime.getAnimes();
 
         if (name == null) {
             return animes;
@@ -23,8 +23,14 @@ public class AnimeController {
 
     @GetMapping("/{id}")
     public Anime findById(@PathVariable Long id) {
-        var animes = animeObject.listAnimes();
-        return animes.stream().filter(anime -> anime.getId().equals(id)).findFirst().orElse(null);
+        return Anime.getAnimes().stream().filter(anime -> anime.getId().equals(id)).findFirst().orElse(null);
+    }
+
+    @PostMapping
+    public Anime saveAnime(@RequestBody Anime anime) {
+        anime.setId(ThreadLocalRandom.current().nextLong(6, 1000));
+        Anime.getAnimes().add(anime);
+        return anime;
     }
 
 }
