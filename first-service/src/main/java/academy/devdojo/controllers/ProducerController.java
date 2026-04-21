@@ -21,9 +21,7 @@ public class ProducerController {
     public List<Producer> listAll(@RequestParam(required = false) String name) {
         var producers = Producer.getProducers();
 
-        if (name == null) {
-            return producers;
-        }
+        if (name == null) return producers;
 
         return producers.stream().filter(producer -> producer.getName().equalsIgnoreCase(name)).toList();
     }
