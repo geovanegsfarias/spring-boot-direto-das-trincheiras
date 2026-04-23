@@ -19,7 +19,7 @@ public interface ProducerMapper {
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     Producer toProducer(ProducerPostRequest request);
 
-    Producer toProducer(ProducerPutRequest request, LocalDateTime createdAt);
+    Producer toProducer(ProducerPutRequest request);
 
     ProducerGetResponse toProducerGetResponse(Producer producer);
 
