@@ -21,12 +21,13 @@ import java.util.List;
 @Slf4j
 public class ProducerController {
 
-    private static final ProducerMapper MAPPER = ProducerMapper.INSTANCE;
+    private final ProducerMapper mapper;
     private final ProducerService service;
 
     @Autowired
-    public ProducerController(ProducerService service) {
+    public ProducerController(ProducerService service, ProducerMapper mapper) {
         this.service = service;
+        this.mapper = mapper;
     }
 
     @GetMapping
@@ -35,7 +36,7 @@ public class ProducerController {
 
         var producers = service.findAll(name);
 
-        var producerGetResponse = MAPPER.toProducerGetResponseList(producers);
+        var producerGetResponse = mapper.toProducerGetResponseList(producers);
 
         return ResponseEntity.ok(producerGetResponse);
     }
@@ -46,7 +47,7 @@ public class ProducerController {
 
         var producer = service.findByIdOrThrowNotFound(id);
 
-        var producerGetResponse = MAPPER.toProducerGetResponse(producer);
+        var producerGetResponse = mapper.toProducerGetResponse(producer);
 
         return ResponseEntity.ok(producerGetResponse);
     }
@@ -55,11 +56,11 @@ public class ProducerController {
     public ResponseEntity<ProducerPostResponse> save(@RequestBody ProducerPostRequest request, @RequestHeader HttpHeaders headers) {
         log.debug("Request to save name: {}", request.getName());
 
-        var producer = MAPPER.toProducer(request);
+        var producer = mapper.toProducer(request);
 
         var producerSaved = service.save(producer);
 
-        var producerPostResponse = MAPPER.toProducerPostResponse(producerSaved);
+        var producerPostResponse = mapper.toProducerPostResponse(producerSaved);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(producerPostResponse);
     }
@@ -77,7 +78,7 @@ public class ProducerController {
     public ResponseEntity<Void> update(@RequestBody ProducerPutRequest request) {
         log.debug("Request to update producer: {}", request);
 
-        var producerToUpdate = MAPPER.toProducer(request);
+        var producerToUpdate = mapper.toProducer(request);
 
         service.update(producerToUpdate);
 
