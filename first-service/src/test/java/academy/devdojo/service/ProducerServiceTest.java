@@ -61,7 +61,7 @@ class ProducerServiceTest {
     }
 
     @Test
-    @DisplayName("findAll returns empty list when name is not found")
+    @DisplayName("findByName returns empty list when name is not found")
     @Order(3)
     void findByName_ReturnsEmptyList_WhenNameIsNull() {
         var name = "not-found";
