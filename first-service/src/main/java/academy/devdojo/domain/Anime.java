@@ -10,8 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Slf4j
 public class Anime {
+    @EqualsAndHashCode.Include
     private Long id;
     private String name;
 }

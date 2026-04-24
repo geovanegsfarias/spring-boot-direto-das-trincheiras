@@ -17,11 +17,11 @@ public class AnimeHardCodedRepository {
     }
 
     public Optional<Anime> findById(Long id) {
-        return animeData.getAnimes().stream().filter(producer -> producer.getId().equals(id)).findFirst();
+        return animeData.getAnimes().stream().filter(anime -> anime.getId().equals(id)).findFirst();
     }
 
     public List<Anime> findByName(String name) {
-        return animeData.getAnimes().stream().filter(producer -> producer.getName().equalsIgnoreCase(name)).toList();
+        return animeData.getAnimes().stream().filter(anime -> anime.getName().equalsIgnoreCase(name)).toList();
     }
 
     public Anime save(Anime anime) {
@@ -37,5 +37,4 @@ public class AnimeHardCodedRepository {
         delete(anime);
         save(anime);
     }
-
 }
