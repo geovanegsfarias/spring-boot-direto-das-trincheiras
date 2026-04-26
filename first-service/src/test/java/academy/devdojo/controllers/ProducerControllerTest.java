@@ -5,14 +5,16 @@ import academy.devdojo.mapper.ProducerMapperImpl;
 import academy.devdojo.repository.ProducerData;
 import academy.devdojo.repository.ProducerHardCodedRepository;
 import academy.devdojo.service.ProducerService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -37,6 +39,8 @@ class ProducerControllerTest {
     @MockBean
     private ProducerData producerData;
     private List<Producer> producerList;
+    @SpyBean
+    private ProducerHardCodedRepository repository;
     @Autowired
     private ResourceLoader resourceLoader;
 
@@ -57,9 +61,8 @@ class ProducerControllerTest {
     @DisplayName("GET v1/producers returns a list with all producers when argument is null")
     @Order(1)
     void findAll_ReturnsAllProducers_WhenArgumentIsNull() throws Exception {
-        var response = readResourceFile("producer/get-producer-null-name-200.json");
-
         BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
+        var response = readResourceFile("producer/get-producer-null-name-200.json");
 
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/producers"))
                 .andDo(MockMvcResultHandlers.print())
@@ -96,7 +99,7 @@ class ProducerControllerTest {
     }
 
     @Test
-    @DisplayName("GET v1/producer/1 returns a producer with given id")
+    @DisplayName("GET v1/producers/1 returns a producer with given id")
     @Order(4)
     void findById_ReturnsAProducerById_WhenSuccessful() throws Exception {
         BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
@@ -110,7 +113,7 @@ class ProducerControllerTest {
     }
 
     @Test
-    @DisplayName("GET v1/producer/99 throws ResponseStatusException 404 when producer is not found")
+    @DisplayName("GET v1/producers/99 throws ResponseStatusException 404 when producer is not found")
     @Order(5)
     void findById_ThrowsResponseStatusException_WhenProducerIsNotFound() throws Exception { // o contexto(mock) não retorna um response body, então buscamos outras formas:
         BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
@@ -122,9 +125,35 @@ class ProducerControllerTest {
                 .andExpect(MockMvcResultMatchers.status().reason("Producer not Found"));
     }
 
+    @Test
+    @DisplayName("POST v1/producers creates a producer")
+    @Order(6)
+    void save_CreatesProducer_WhenSuccessfully() throws Exception {
+        var request = readResourceFile("producer/post-request-producer-200.json");
+        var response = readResourceFile("producer/post-response-producer-201.json");
+        var producerToSave = Producer.builder().id(99L).name("Aniplex").createdAt(LocalDateTime.now()).build();
+
+        BDDMockito.when(repository.save(ArgumentMatchers.any())).thenReturn(producerToSave);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post("/v1/producers")
+                        .content(request)
+                        .header("x-api-key", "123")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.content().json(response));
+    }
+
     private String readResourceFile(String fileName) throws IOException {
         var file = resourceLoader.getResource("classpath:%s".formatted(fileName)).getFile();
         return new String(Files.readAllBytes(file.toPath()));
     }
 }
 
+// Importante: entender a diferença entre @Mock, @MockBean e @SpyBean
+// Importante: entender o funcionamento geral do mockito
+// Importante: entender o funcionamento geral do mockito do spring
+// Sobre @SpyBean: tem situações que você vai precisar mockar uma determinada chamada de um metodo, porém vc quer que o restante do funcionamento do objeto funcione normalmente.
