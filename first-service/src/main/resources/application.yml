@@ -18,6 +18,7 @@ server:
       max: 20
 
 database:
-  url: localhost:3306
-  username: mysql
-  password: mysql
+  url: ${DB_URL:localhost}:${DB_PORT:3306} # Procure pela variável de ambiente DB_URL e use ela, caso não exista use o valor "localhost".
+  username: ${LOCAL_USERNAME:gsf} # Para usar as variáveis de ambiente use ${} e dentro coloque o nome da variável em letras maiusculas e underline separando palavras.
+  password: ${LOCAL_PASSWORD:gsf} # Jamais expor esses dados deixando hardcoded no application.yml
+                               # Após o nome da váriavel de ambiente, você pode usar ":" e um valor default caso a variável não esteja disponível ou não seja encontrada.
