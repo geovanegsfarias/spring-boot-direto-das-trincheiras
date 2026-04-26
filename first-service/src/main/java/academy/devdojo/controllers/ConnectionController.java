@@ -1,6 +1,6 @@
 package academy.devdojo.controllers;
 
-import academy.devdojo.external.dependency.Connection;
+import academy.devdojo.config.Connection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 public class ConnectionController {
-    private final Connection connectionMySql;
+    private final Connection connection;
 
     @GetMapping
     public ResponseEntity<Connection> getConnections() {
-        return ResponseEntity.ok(connectionMySql);
+        return ResponseEntity.ok(connection);
     }
 }

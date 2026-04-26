@@ -14,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -28,6 +30,8 @@ import java.util.List;
 // slice test: starta apenas o que é necessário para fazer o teste da camada web, como parâmetro qual controller queremos carregar no contexto(mock)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Import({ProducerMapperImpl.class, ProducerService.class, ProducerHardCodedRepository.class, ProducerData.class, FileUtils.class, ProducerUtils.class}) // import de tudo que o teste precisa pra funcionar (por padrão não carrega anotações de criação de beans)
+@ComponentScan(basePackages = {"academy.devdojo"})
+//@ActiveProfiles("test")
 class ProducerControllerTest {
     private static final String URL = "/v1/producers";
     @Autowired

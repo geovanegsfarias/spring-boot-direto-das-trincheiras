@@ -49,6 +49,14 @@
 
     <build>
         <plugins>
+            <plugin> <!-- Plugin como opção alternativa ao @ActiveProfiles na classe de teste -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <argLine>-Dspring.profiles.active=test</argLine>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
