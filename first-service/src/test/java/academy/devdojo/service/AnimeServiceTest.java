@@ -1,5 +1,6 @@
 package academy.devdojo.service;
 
+import academy.devdojo.commons.AnimeUtils;
 import academy.devdojo.domain.Anime;
 import academy.devdojo.repository.AnimeHardCodedRepository;
 import org.assertj.core.api.Assertions;
@@ -12,11 +13,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -26,15 +27,12 @@ class AnimeServiceTest {
     private List<Anime> animeList;
     @InjectMocks
     private AnimeService service;
+    @InjectMocks
+    private AnimeUtils animeUtils;
 
     @BeforeEach
     void init() {
-        var jujutsuKaisen = Anime.builder().id(1L).name("Jujutsu Kaisen").build();
-        var narutoShippuden = Anime.builder().id(2L).name("Naruto Shippuden").build();
-        var dragonBallSuper = Anime.builder().id(3L).name("Dragon Ball Super").build();
-        var hunterXHunter = Anime.builder().id(4L).name("Hunter X Hunter").build();
-        var jojo = Anime.builder().id(5L).name("JoJo's Bizarre Adventure").build();
-        animeList = new ArrayList<>(List.of(jujutsuKaisen, narutoShippuden, dragonBallSuper, hunterXHunter, jojo));
+        animeList = animeUtils.newAnimeList();
     }
 
     @Test
@@ -100,7 +98,7 @@ class AnimeServiceTest {
     @DisplayName("save creates a anime")
     @Order(6)
     void save_CreatesAnime_WhenSuccessfully() {
-        var animeToSave = Anime.builder().id(99L).name("Pokémon").build();
+        var animeToSave = animeUtils.newAnimeToSave();
 
         BDDMockito.when(repository.save(animeToSave)).thenReturn(animeToSave);
 

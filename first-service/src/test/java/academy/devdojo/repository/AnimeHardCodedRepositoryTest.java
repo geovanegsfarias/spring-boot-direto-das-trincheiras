@@ -1,5 +1,6 @@
 package academy.devdojo.repository;
 
+import academy.devdojo.commons.AnimeUtils;
 import academy.devdojo.domain.Anime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
@@ -9,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -20,15 +20,12 @@ class AnimeHardCodedRepositoryTest {
     private List<Anime> animeList;
     @InjectMocks
     private AnimeHardCodedRepository repository;
-    
+    @InjectMocks
+    private AnimeUtils animeUtils;
+
     @BeforeEach
     void init() {
-        var jujutsuKaisen = Anime.builder().id(1L).name("Jujutsu Kaisen").build();
-        var narutoShippuden = Anime.builder().id(2L).name("Naruto Shippuden").build();
-        var dragonBallSuper = Anime.builder().id(3L).name("Dragon Ball Super").build();
-        var hunterXHunter = Anime.builder().id(4L).name("Hunter X Hunter").build();
-        var jojo = Anime.builder().id(5L).name("JoJo's Bizarre Adventure").build();
-        animeList = new ArrayList<>(List.of(jujutsuKaisen, narutoShippuden, dragonBallSuper, hunterXHunter, jojo));
+        animeList = animeUtils.newAnimeList();
     }
 
     @Test
@@ -83,7 +80,7 @@ class AnimeHardCodedRepositoryTest {
     void save_CreatesAnime_WhenSuccessfully() {
         BDDMockito.when(animeData.getAnimes()).thenReturn(animeList);
 
-        var animeToSave = Anime.builder().id(99L).name("My Hero Academia").build();
+        var animeToSave = animeUtils.newAnimeToSave();
         var anime = repository.save(animeToSave);
 
         Assertions.assertThat(anime).isEqualTo(animeToSave).hasNoNullFieldsOrProperties();
