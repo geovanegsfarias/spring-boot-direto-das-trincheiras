@@ -86,7 +86,7 @@ class ProducerServiceTest {
 
     @Test
     @DisplayName("findById throws ResponseStatusException when producer is not found")
-    @Order(4)
+    @Order(5)
     void findById_ThrowsResponseStatusException_WhenProducerIsNotFound() {
         var expectedProducer = producerList.getFirst();
         BDDMockito.when(repository.findById(expectedProducer.getId())).thenReturn(Optional.empty());
