@@ -9,7 +9,7 @@ import java.util.List;
 
 @Component
 public class ProducerData {
-    private List<Producer> producers = new ArrayList<>();
+    private final List<Producer> producers = new ArrayList<>();
 
     {
         producers.addAll(List.of(
