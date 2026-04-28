@@ -22,7 +22,7 @@ public class UserRepository {
 
     public List<User> findByName(String name) {
         return userData.getUsers().stream()
-                .filter(user -> (user.getFirstName().toLowerCase() + " " + user.getLastName().toLowerCase()).contains(name.toLowerCase()))
+                .filter(user -> user.getFirstName().equalsIgnoreCase(name))
                 .toList();
     }
 

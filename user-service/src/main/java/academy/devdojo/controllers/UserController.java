@@ -28,10 +28,10 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserGetResponse>> findAll(@RequestParam(required = false) String name) {
-        log.debug("Request received to list all users, params name {}", name);
+    public ResponseEntity<List<UserGetResponse>> findAll(@RequestParam(required = false) String firstName) {
+        log.debug("Request received to list all users, params name {}", firstName);
 
-        var users = service.findAll(name);
+        var users = service.findAll(firstName);
 
         var userGetResponseList = mapper.toUserGetResponseList(users);
 
