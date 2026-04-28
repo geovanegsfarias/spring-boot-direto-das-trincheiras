@@ -9,6 +9,9 @@ import academy.devdojo.repository.UserRepository;
 import academy.devdojo.service.UserService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +26,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 @WebMvcTest(controllers = UserController.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -203,11 +208,12 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.status().reason("User not found"));
     }
 
-    @Test
+    @ParameterizedTest
+    @MethodSource("postUserBadRequestSource")
     @DisplayName("POST v1/users returns bad request when fields are empty")
     @Order(11)
-    void save_ReturnsBadRequest_WhenFieldsAreEmpty() throws Exception { // testando bean validation, nesse caso estamos testando todos os campos de uma vez, mas em projetos reais buscar testar de modo unitário (cada campo por vez)
-        var request = fileUtils.readResourceFile("user/post-request-user-empty-fields-400.json");
+    void save_ReturnsBadRequest_WhenFieldsAreEmpty(String fileName, List<String> errors) throws Exception { // testando bean validation, nesse caso estamos testando todos os campos de uma vez, mas em projetos reais buscar testar de modo unitário (cada campo por vez)
+        var request = fileUtils.readResourceFile("user/%s".formatted(fileName));
 
         var mvcResult = mockMvc.perform(MockMvcRequestBuilders
                         .post(URL)
@@ -222,37 +228,23 @@ class UserControllerTest {
 
         Assertions.assertThat(resolvedException).isNotNull();
 
-        var firstNameError = "The field 'firstName' is required";
-        var lastNameError = "The field 'lastName' is required";
-        var emailError = "The field 'email' is required";
-
-        Assertions.assertThat(resolvedException.getMessage()).contains(firstNameError, lastNameError, emailError);
+        Assertions.assertThat(resolvedException.getMessage()).contains(errors);
     }
 
-    @Test
-    @DisplayName("POST v1/users returns bad request when fields are blank")
-    @Order(12)
-    void save_ReturnsBadRequest_WhenFieldsAreBlank() throws Exception {
-        var request = fileUtils.readResourceFile("user/post-request-user-blank-fields-400.json");
+    private static Stream<Arguments> postUserBadRequestSource() {
+        var firstNameRequiredError = "The field 'firstName' is required";
+        var lastNameRequiredError = "The field 'lastName' is required";
+        var emailRequiredError = "The field 'email' is required";
+        var emailInvalidError = "The e-mail is not valid";
 
-        var mvcResult = mockMvc.perform(MockMvcRequestBuilders
-                        .post(URL)
-                        .content(request)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andReturn();
+        var allErrors = List.of(firstNameRequiredError, lastNameRequiredError, emailRequiredError);
+        var emailError = Collections.singletonList(emailInvalidError);
 
-        var resolvedException = mvcResult.getResolvedException();
-
-        Assertions.assertThat(resolvedException).isNotNull();
-
-        var firstNameError = "The field 'firstName' is required";
-        var lastNameError = "The field 'lastName' is required";
-        var emailError = "The field 'email' is required";
-
-        Assertions.assertThat(resolvedException.getMessage()).contains(firstNameError, lastNameError, emailError);
+        return Stream.of(  // Para cada um dos argumentos, o teste parametrizado será executado.
+                Arguments.of("post-request-user-empty-fields-400.json", allErrors),
+                Arguments.of("post-request-user-blank-fields-400.json", allErrors),
+                Arguments.of("post-request-user-invalid-email-400.json", emailError)
+        ); // Passando também as asserções como argumentos para validar diferentes tipos de erros (cenários) diferentes
     }
 
 }
