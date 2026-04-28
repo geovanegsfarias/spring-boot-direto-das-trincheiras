@@ -7,7 +7,11 @@ import academy.devdojo.mapper.ProducerMapperImpl;
 import academy.devdojo.repository.ProducerData;
 import academy.devdojo.repository.ProducerHardCodedRepository;
 import academy.devdojo.service.ProducerService;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +21,22 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 // @SpringBootTest: usar quando você quer fazer um teste de integração
 @WebMvcTest(controllers = ProducerController.class)
 // slice test: starta apenas o que é necessário para fazer o teste da camada web, como parâmetro qual controller queremos carregar no contexto(mock)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Import({ProducerMapperImpl.class, ProducerService.class, ProducerHardCodedRepository.class, ProducerData.class, FileUtils.class, ProducerUtils.class}) // import de tudo que o teste precisa pra funcionar (por padrão não carrega anotações de criação de beans)
+@Import({ProducerMapperImpl.class, ProducerService.class, ProducerHardCodedRepository.class, ProducerData.class, FileUtils.class, ProducerUtils.class})
+// import de tudo que o teste precisa pra funcionar (por padrão não carrega anotações de criação de beans)
 @ComponentScan(basePackages = {"academy.devdojo"})
 //@ActiveProfiles("test")
 class ProducerControllerTest {
@@ -146,9 +153,35 @@ class ProducerControllerTest {
                 .andExpect(MockMvcResultMatchers.content().json(response));
     }
 
+    @ParameterizedTest
+    @MethodSource("postProducerBadRequestSource")
+    @DisplayName("POST v1/producers returns bad request when fields are not valid")
+    @Order(7)
+    void save_ReturnsBadRequest_WhenFieldsAreNotValid(String fileName) throws Exception {
+        var request = fileUtils.readResourceFile("producer/%s".formatted(fileName));
+
+        var mvcResult = mockMvc.perform(MockMvcRequestBuilders
+                        .post(URL)
+                        .content(request)
+                        .header("x-api-key", "123")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        var resolvedException = mvcResult.getResolvedException();
+
+        Assertions.assertThat(resolvedException).isNotNull();
+
+        var error = "The field 'name' is required";
+
+        Assertions.assertThat(resolvedException.getMessage()).contains(error);
+    }
+
     @Test
     @DisplayName("PUT v1/producers updates a producer")
-    @Order(7)
+    @Order(8)
     void update_Updates_WhenSuccessful() throws Exception {
         BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
 
@@ -165,7 +198,7 @@ class ProducerControllerTest {
 
     @Test
     @DisplayName("PUT v1/producers throws ResponseStatusException when producer is not found")
-    @Order(8)
+    @Order(9)
     void update_ThrowsResponseStatusException_WhenProducerIsNotFound() throws Exception {
         BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
 
@@ -181,9 +214,36 @@ class ProducerControllerTest {
                 .andExpect(MockMvcResultMatchers.status().reason("Producer not found"));
     }
 
+    @ParameterizedTest
+    @MethodSource("putProducerBadRequestSource")
+    @DisplayName("PUT v1/producers returns bad request when fields are not valid")
+    @Order(10)
+    void update_ReturnsBadRequest_WhenFieldsAreNotValid(String fileName) throws Exception {
+        BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
+
+        var request = fileUtils.readResourceFile("producer/%s".formatted(fileName));
+
+        var mvcResult = mockMvc.perform(MockMvcRequestBuilders
+                        .put(URL)
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andReturn();
+
+        var resolvedException = mvcResult.getResolvedException();
+
+        Assertions.assertThat(resolvedException).isNotNull();
+
+        var errors = List.of("The field 'id' cannot be null" ,"The field 'name' is required");
+
+        Assertions.assertThat(resolvedException.getMessage()).contains(errors);
+    }
+
     @Test
     @DisplayName("DELETE v1/producers/1 removes a producer")
-    @Order(9)
+    @Order(11)
     void delete_RemoveProducer_WhenSuccessful() throws Exception {
         BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
 
@@ -196,7 +256,7 @@ class ProducerControllerTest {
 
     @Test
     @DisplayName("DELETE v1/producers/99 throws ResponseStatusException when producer is not found")
-    @Order(10)
+    @Order(12)
     void delete_ThrowsResponseStatusException_WhenProducerIsNotFound() throws Exception {
         BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
 
@@ -206,6 +266,21 @@ class ProducerControllerTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andExpect(MockMvcResultMatchers.status().reason("Producer not found"));
+    }
+
+    private static Stream<Arguments> postProducerBadRequestSource() {
+        return Stream.of(
+                Arguments.of("post-request-producer-empty-fields-400.json"),
+                Arguments.of("post-request-producer-blank-fields-400.json")
+        );
+    }
+
+    private static Stream<Arguments> putProducerBadRequestSource() {
+        return Stream.of(
+                Arguments.of("put-request-producer-empty-fields-400.json"),
+                Arguments.of("put-request-producer-blank-fields-400.json")
+        );
+
     }
 
 }
