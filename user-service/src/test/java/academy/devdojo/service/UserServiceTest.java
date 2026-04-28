@@ -52,7 +52,7 @@ class UserServiceTest {
     void findAll_ReturnsFoundUsersInList_WhenNameIsFound() {
         var user = userList.getFirst();
         var expectedUsersFound = singletonList(user);
-        BDDMockito.when(repository.findByName(user.getFirstName())).thenReturn(expectedUsersFound);
+        BDDMockito.when(repository.findByFirstName(user.getFirstName())).thenReturn(expectedUsersFound);
 
         var usersFound = service.findAll(user.getFirstName());
         Assertions.assertThat(usersFound).containsAll(expectedUsersFound);
@@ -63,7 +63,7 @@ class UserServiceTest {
     @Order(3)
     void findByName_ReturnsEmptyList_WhenNameIsNull() {
         var name = "not-found";
-        BDDMockito.when(repository.findByName(name)).thenReturn(emptyList());
+        BDDMockito.when(repository.findByFirstName(name)).thenReturn(emptyList());
 
         var users = service.findAll(name);
 

@@ -1,1 +1,6 @@
-{"id":1,"name":"Jujutsu Kaisen"}
+{
+  "id": 1,
+  "firstName": "Crow",
+  "lastName": "Brawler",
+  "email": "crow@gmail.com"
+}

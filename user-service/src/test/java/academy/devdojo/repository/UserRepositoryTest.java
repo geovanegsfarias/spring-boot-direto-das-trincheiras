@@ -57,7 +57,7 @@ class UserRepositoryTest {
     void findByName_ReturnsEmptyList_WhenNameIsNull() {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
-        var users = repository.findByName(null);
+        var users = repository.findByFirstName(null);
 
         Assertions.assertThat(users).isNotNull().isEmpty();
     }
@@ -69,9 +69,9 @@ class UserRepositoryTest {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
 
         var expectedUser = userList.getFirst();
-        var users = repository.findByName(expectedUser.getFirstName());
+        var users = repository.findByFirstName(expectedUser.getFirstName());
 
-        Assertions.assertThat(users).isNotNull().contains(expectedUser);
+        Assertions.assertThat(users).isNotNull().hasSize(1).contains(expectedUser);
     }
 
     @Test

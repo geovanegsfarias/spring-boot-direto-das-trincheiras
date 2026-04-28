@@ -20,9 +20,9 @@ public class UserRepository {
         return userData.getUsers().stream().filter(user -> user.getId().equals(id)).findFirst();
     }
 
-    public List<User> findByName(String name) {
+    public List<User> findByFirstName(String firstName) {
         return userData.getUsers().stream()
-                .filter(user -> user.getFirstName().equalsIgnoreCase(name))
+                .filter(user -> user.getFirstName().equalsIgnoreCase(firstName))
                 .toList();
     }
 

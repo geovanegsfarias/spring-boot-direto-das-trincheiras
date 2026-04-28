@@ -1,1 +1,6 @@
-{"id":1,"firstName":"William","lastName":"Suane","email":"devdojo@gmail.com"}
+{
+  "id": 1,
+  "firstName": "William",
+  "lastName": "Suane",
+  "email": "devdojo@gmail.com"
+}
