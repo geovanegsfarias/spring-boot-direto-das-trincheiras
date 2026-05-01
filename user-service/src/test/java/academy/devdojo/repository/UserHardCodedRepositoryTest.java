@@ -14,12 +14,12 @@ import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class UserRepositoryTest {
+class UserHardCodedRepositoryTest {
     private List<User> userList;
     @Mock
     private UserData userData;
     @InjectMocks
-    private UserRepository repository;
+    private UserHardCodedRepository repository;
     @InjectMocks
     private UserUtils userUtils; // usar @injectmocks apenas na classe a ser testada (não repetir isso)
 

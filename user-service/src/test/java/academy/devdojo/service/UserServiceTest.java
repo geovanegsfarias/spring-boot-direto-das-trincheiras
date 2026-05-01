@@ -2,6 +2,7 @@ package academy.devdojo.service;
 
 import academy.devdojo.commons.UserUtils;
 import academy.devdojo.domain.User;
+import academy.devdojo.repository.UserHardCodedRepository;
 import academy.devdojo.repository.UserRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
@@ -23,7 +24,9 @@ import static java.util.Collections.singletonList;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class UserServiceTest {
     @Mock
-    private UserRepository repository;
+    private UserHardCodedRepository repository;
+    @Mock
+    private UserRepository userRepository;
     private List<User> userList;
     @InjectMocks
     private UserService service;
@@ -39,7 +42,7 @@ class UserServiceTest {
     @DisplayName("findAll returns a list with all users when argument is null")
     @Order(1)
     void findAll_ReturnsAllUsers_WhenArgumentIsNull() {
-        BDDMockito.when(repository.findAll()).thenReturn(userList);
+        BDDMockito.when(userRepository.findAll()).thenReturn(userList);
 
         var users = service.findAll(null);
 
