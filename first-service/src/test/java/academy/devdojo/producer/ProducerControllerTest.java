@@ -1,11 +1,11 @@
-package academy.devdojo.controllers;
+package academy.devdojo.producer;
 
 import academy.devdojo.commons.FileUtils;
 import academy.devdojo.commons.ProducerUtils;
+import academy.devdojo.controllers.ProducerController;
 import academy.devdojo.domain.Producer;
 import academy.devdojo.mapper.ProducerMapperImpl;
-import academy.devdojo.repository.ProducerData;
-import academy.devdojo.repository.ProducerHardCodedRepository;
+import academy.devdojo.repository.ProducerRepository;
 import academy.devdojo.service.ProducerService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
@@ -17,16 +17,15 @@ import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -35,19 +34,17 @@ import java.util.stream.Stream;
 @WebMvcTest(controllers = ProducerController.class)
 // slice test: starta apenas o que é necessário para fazer o teste da camada web, como parâmetro qual controller queremos carregar no contexto(mock)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Import({ProducerMapperImpl.class, ProducerService.class, ProducerHardCodedRepository.class, ProducerData.class, FileUtils.class, ProducerUtils.class})
+@Import({ProducerMapperImpl.class, ProducerService.class, ProducerRepository.class, FileUtils.class, ProducerUtils.class})
 // import de tudo que o teste precisa pra funcionar (por padrão não carrega anotações de criação de beans)
-@ComponentScan(basePackages = {"academy.devdojo"})
+// alternativa ao @Import que talvez não faça tanto sentido: @ComponentScan(basePackages = {"academy.devdojo"})
 //@ActiveProfiles("test")
 class ProducerControllerTest {
     private static final String URL = "/v1/producers";
+    private List<Producer> producerList;
     @Autowired
     private MockMvc mockMvc; // classe que permite testar endpoints
     @MockBean
-    private ProducerData producerData;
-    private List<Producer> producerList;
-    @SpyBean
-    private ProducerHardCodedRepository repository;
+    private ProducerRepository repository;
     @Autowired
     private FileUtils fileUtils;
     @Autowired
@@ -62,8 +59,7 @@ class ProducerControllerTest {
     @DisplayName("GET v1/producers returns a list with all producers when argument is null")
     @Order(1)
     void findAll_ReturnsAllProducers_WhenArgumentIsNull() throws Exception {
-        BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
-
+        BDDMockito.when(repository.findAll()).thenReturn(producerList);
         var response = fileUtils.readResourceFile("producer/get-producer-null-name-200.json");
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL))
@@ -76,10 +72,11 @@ class ProducerControllerTest {
     @DisplayName("GET v1/producers?name=Ufotable returns a list with found object when name exists")
     @Order(2)
     void findAll_ReturnsFoundProducersInList_WhenNameIsFound() throws Exception {
-        BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
-
         var response = fileUtils.readResourceFile("producer/get-producer-ufotable-name-200.json");
         var name = "Ufotable";
+        var foundProducer = producerList.stream().filter(producer -> producer.getName().equals(name)).findFirst().orElse(null);
+
+        BDDMockito.when(repository.findByName(name)).thenReturn(Collections.singletonList(foundProducer));
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL).param("name", name))
                 .andDo(MockMvcResultHandlers.print())
@@ -91,8 +88,6 @@ class ProducerControllerTest {
     @DisplayName("GET v1/producers?name=x returns empty list when name is not found")
     @Order(3)
     void findAll_ReturnsEmptyList_WhenNameIsNull() throws Exception {
-        BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
-
         var response = fileUtils.readResourceFile("producer/get-producer-x-name-200.json");
         var name = "x";
 
@@ -106,10 +101,10 @@ class ProducerControllerTest {
     @DisplayName("GET v1/producers/1 returns a producer with given id")
     @Order(4)
     void findById_ReturnsAProducerById_WhenSuccessful() throws Exception {
-        BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
-
         var response = fileUtils.readResourceFile("producer/get-producer-by-id-1-200.json");
         var id = 1L;
+        var foundProducer = producerList.stream().filter(producer -> producer.getId().equals(id)).findFirst();
+        BDDMockito.when(repository.findById(id)).thenReturn(foundProducer);
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL + "/{id}", id))
                 .andDo(MockMvcResultHandlers.print())
@@ -121,7 +116,6 @@ class ProducerControllerTest {
     @DisplayName("GET v1/producers/99 throws NotFound 404 when producer is not found")
     @Order(5)
     void findById_ThrowsNotFound_WhenProducerIsNotFound() throws Exception { // o contexto(mock) não retorna um response body, então buscamos outras formas:
-        BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
         var response = fileUtils.readResourceFile("producer/get-response-producer-by-id-404.json");
 
         var id = 99L;
@@ -154,11 +148,73 @@ class ProducerControllerTest {
                 .andExpect(MockMvcResultMatchers.content().json(response));
     }
 
+    @Test
+    @DisplayName("DELETE v1/producers/1 removes a producer")
+    @Order(7)
+    void delete_RemoveProducer_WhenSuccessful() throws Exception {
+        var id = producerList.getFirst().getId();
+        var foundProducer = producerList.stream().filter(producer -> producer.getId().equals(id)).findFirst();
+        BDDMockito.when(repository.findById(id)).thenReturn(foundProducer);
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(URL + "/{id}", id))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("DELETE v1/producers/99 throws NotFound when producer is not found")
+    @Order(8)
+    void delete_ThrowsNotFound_WhenProducerIsNotFound() throws Exception {
+        var response = fileUtils.readResourceFile("producer/delete-response-producer-404.json");
+
+        var id = 99L;
+
+        mockMvc.perform(MockMvcRequestBuilders.delete(URL + "/{id}", id))
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers.content().json(response));
+    }
+
+    @Test
+    @DisplayName("PUT v1/producers updates a producer")
+    @Order(9)
+    void update_Updates_WhenSuccessful() throws Exception {
+        var request = fileUtils.readResourceFile("producer/put-request-producer-200.json");
+        var id = 1L;
+        var foundProducer = producerList.stream().filter(producer -> producer.getId().equals(id)).findFirst();
+        BDDMockito.when(repository.findById(id)).thenReturn(foundProducer);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put(URL)
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("PUT v1/producers throws NotFound when producer is not found")
+    @Order(10)
+    void update_ThrowsNotFound_WhenProducerIsNotFound() throws Exception {
+        var request = fileUtils.readResourceFile("producer/put-request-producer-404.json");
+        var response = fileUtils.readResourceFile("producer/put-response-producer-404.json");
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .put(URL)
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andDo(MockMvcResultHandlers.print())
+                .andExpect(MockMvcResultMatchers.status().isNotFound())
+                .andExpect(MockMvcResultMatchers.content().json(response));
+    }
+
     @ParameterizedTest
     @MethodSource("postProducerBadRequestSource")
     @DisplayName("POST v1/producers returns bad request when fields are not valid")
-    @Order(7)
-    void save_ReturnsBadRequest_WhenFieldsAreNotValid(String fileName) throws Exception {
+    @Order(11)
+    void save_ReturnsBadRequest_WhenFieldsAreNotValid(String fileName, List<String> errors) throws Exception {
         var request = fileUtils.readResourceFile("producer/%s".formatted(fileName));
 
         var mvcResult = mockMvc.perform(MockMvcRequestBuilders
@@ -175,53 +231,14 @@ class ProducerControllerTest {
 
         Assertions.assertThat(resolvedException).isNotNull();
 
-        var error = "The field 'name' is required";
-
-        Assertions.assertThat(resolvedException.getMessage()).contains(error);
-    }
-
-    @Test
-    @DisplayName("PUT v1/producers updates a producer")
-    @Order(8)
-    void update_Updates_WhenSuccessful() throws Exception {
-        BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
-
-        var request = fileUtils.readResourceFile("producer/put-request-producer-200.json");
-
-        mockMvc.perform(MockMvcRequestBuilders
-                        .put(URL)
-                        .content(request)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
-    }
-
-    @Test
-    @DisplayName("PUT v1/producers throws NotFound when producer is not found")
-    @Order(9)
-    void update_ThrowsNotFound_WhenProducerIsNotFound() throws Exception {
-        BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
-        var request = fileUtils.readResourceFile("producer/put-request-producer-404.json");
-        var response = fileUtils.readResourceFile("producer/put-response-producer-404.json");
-
-        mockMvc.perform(MockMvcRequestBuilders
-                        .put(URL)
-                        .content(request)
-                        .contentType(MediaType.APPLICATION_JSON)
-                )
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.content().json(response));
+        Assertions.assertThat(resolvedException.getMessage()).contains(errors);
     }
 
     @ParameterizedTest
     @MethodSource("putProducerBadRequestSource")
     @DisplayName("PUT v1/producers returns bad request when fields are not valid")
-    @Order(10)
-    void update_ReturnsBadRequest_WhenFieldsAreNotValid(String fileName) throws Exception {
-        BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
-
+    @Order(12)
+    void update_ReturnsBadRequest_WhenFieldsAreNotValid(String fileName, List<String> errors) throws Exception {
         var request = fileUtils.readResourceFile("producer/%s".formatted(fileName));
 
         var mvcResult = mockMvc.perform(MockMvcRequestBuilders
@@ -237,52 +254,32 @@ class ProducerControllerTest {
 
         Assertions.assertThat(resolvedException).isNotNull();
 
-        var errors = List.of("The field 'id' cannot be null" ,"The field 'name' is required");
-
         Assertions.assertThat(resolvedException.getMessage()).contains(errors);
     }
 
-    @Test
-    @DisplayName("DELETE v1/producers/1 removes a producer")
-    @Order(11)
-    void delete_RemoveProducer_WhenSuccessful() throws Exception {
-        BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
+    private static Stream<Arguments> putProducerBadRequestSource() {
+        var allRequiredErrors = allRequiredErrors();
+        allRequiredErrors.add("The field 'id' cannot be null");
 
-        var id = producerList.getFirst().getId();
-
-        mockMvc.perform(MockMvcRequestBuilders.delete(URL + "/{id}", id))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isNoContent());
-    }
-
-    @Test
-    @DisplayName("DELETE v1/producers/99 throws NotFound when producer is not found")
-    @Order(12)
-    void delete_ThrowsNotFound_WhenProducerIsNotFound() throws Exception {
-        BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
-        var response = fileUtils.readResourceFile("producer/delete-response-producer-404.json");
-
-        var id = 99L;
-
-        mockMvc.perform(MockMvcRequestBuilders.delete(URL + "/{id}", id))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.content().json(response));
+        return Stream.of(
+                Arguments.of("put-request-producer-empty-fields-400.json", allRequiredErrors),
+                Arguments.of("put-request-producer-blank-fields-400.json", allRequiredErrors)
+        );
     }
 
     private static Stream<Arguments> postProducerBadRequestSource() {
+        var allRequiredErrors = allRequiredErrors();
+
         return Stream.of(
-                Arguments.of("post-request-producer-empty-fields-400.json"),
-                Arguments.of("post-request-producer-blank-fields-400.json")
+                Arguments.of("post-request-producer-empty-fields-400.json", allRequiredErrors),
+                Arguments.of("post-request-producer-blank-fields-400.json", allRequiredErrors)
         );
     }
 
-    private static Stream<Arguments> putProducerBadRequestSource() {
-        return Stream.of(
-                Arguments.of("put-request-producer-empty-fields-400.json"),
-                Arguments.of("put-request-producer-blank-fields-400.json")
-        );
+    private static List<String> allRequiredErrors() {
+        var nameRequiredError = "The field 'name' is required";
 
+        return new ArrayList<>(List.of(nameRequiredError));
     }
 
 }

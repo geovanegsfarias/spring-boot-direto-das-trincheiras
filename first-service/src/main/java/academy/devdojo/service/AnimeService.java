@@ -2,7 +2,7 @@ package academy.devdojo.service;
 
 import academy.devdojo.domain.Anime;
 import academy.devdojo.exception.NotFoundException;
-import academy.devdojo.repository.AnimeHardCodedRepository;
+import academy.devdojo.repository.AnimeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,10 +13,10 @@ import java.util.List;
 @Service
 public class AnimeService {
 
-    private final AnimeHardCodedRepository repository;
+    private final AnimeRepository repository;
 
     @Autowired
-    public AnimeService(AnimeHardCodedRepository repository) {
+    public AnimeService(AnimeRepository repository) {
         this.repository = repository;
     }
 
@@ -40,7 +40,7 @@ public class AnimeService {
 
     public void update(Anime animeToUpdate) {
         assertThatAnimeExists(animeToUpdate.getId());
-        repository.update(animeToUpdate);
+        repository.save(animeToUpdate);
     }
 
     public void assertThatAnimeExists(Long id) {

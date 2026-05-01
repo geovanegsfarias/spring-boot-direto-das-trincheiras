@@ -118,9 +118,6 @@ class UserServiceTest {
         BDDMockito.when(repository.findById(userToDelete.getId())).thenReturn(Optional.of(userToDelete));
         BDDMockito.doNothing().when(repository).delete(userToDelete);
 
-
-        service.delete(userToDelete.getId());
-
         Assertions.assertThatNoException().isThrownBy(() -> service.delete(userToDelete.getId()));
     }
 

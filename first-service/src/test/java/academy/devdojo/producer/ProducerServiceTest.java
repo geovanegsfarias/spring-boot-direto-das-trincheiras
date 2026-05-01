@@ -1,9 +1,11 @@
-package academy.devdojo.service;
+package academy.devdojo.producer;
 
 import academy.devdojo.commons.ProducerUtils;
 import academy.devdojo.domain.Producer;
-import academy.devdojo.repository.ProducerHardCodedRepository;
+import academy.devdojo.repository.ProducerRepository;
+import academy.devdojo.service.ProducerService;
 import org.assertj.core.api.Assertions;
+import org.hibernate.persister.collection.mutation.UpdateRowsCoordinator;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -22,9 +24,9 @@ import static java.util.Collections.singletonList;
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ProducerServiceTest {
-    @Mock
-    private ProducerHardCodedRepository repository;
     private List<Producer> producerList;
+    @Mock
+    private ProducerRepository repository;
     @InjectMocks
     private ProducerService service;
     @InjectMocks
@@ -42,7 +44,6 @@ class ProducerServiceTest {
         BDDMockito.when(repository.findAll()).thenReturn(producerList);
 
         var producers = service.findAll(null);
-
         Assertions.assertThat(producers).isNotNull().hasSameElementsAs(producerList);
     }
 
@@ -52,6 +53,7 @@ class ProducerServiceTest {
     void findAll_ReturnsFoundProducersInList_WhenNameIsFound() {
         var producer = producerList.getFirst();
         var expectedProducersFound = singletonList(producer);
+
         BDDMockito.when(repository.findByName(producer.getName())).thenReturn(expectedProducersFound);
 
         var producersFound = service.findAll(producer.getName());
@@ -66,7 +68,6 @@ class ProducerServiceTest {
         BDDMockito.when(repository.findByName(name)).thenReturn(emptyList());
 
         var producers = service.findAll(name);
-
         Assertions.assertThat(producers).isNotNull().isEmpty();
     }
 
@@ -112,11 +113,8 @@ class ProducerServiceTest {
     @Order(7)
     void delete_RemoveProducer_WhenSuccessful() { // Lidando com metodo que retorna void
         var producerToDelete = producerList.getFirst();
-
         BDDMockito.when(repository.findById(producerToDelete.getId())).thenReturn(Optional.of(producerToDelete));
         BDDMockito.doNothing().when(repository).delete(producerToDelete);
-
-        service.delete(producerToDelete.getId());
 
         Assertions.assertThatNoException().isThrownBy(() -> service.delete(producerToDelete.getId()));
     }
@@ -141,7 +139,7 @@ class ProducerServiceTest {
         producerToUpdate.setName("Aniplex");
 
         BDDMockito.when(repository.findById(producerToUpdate.getId())).thenReturn(Optional.of(producerToUpdate));
-        BDDMockito.doNothing().when(repository).update(producerToUpdate);
+        BDDMockito.when(repository.save(producerToUpdate)).thenReturn(producerToUpdate);
 
         Assertions.assertThatNoException().isThrownBy(() -> service.update(producerToUpdate));
     }

@@ -2,7 +2,7 @@ package academy.devdojo.service;
 
 import academy.devdojo.domain.Producer;
 import academy.devdojo.exception.NotFoundException;
-import academy.devdojo.repository.ProducerHardCodedRepository;
+import academy.devdojo.repository.ProducerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -12,10 +12,10 @@ import java.util.List;
 
 @Service
 public class ProducerService {
-    private final ProducerHardCodedRepository repository;
+    private final ProducerRepository repository;
 
     @Autowired
-    public ProducerService(ProducerHardCodedRepository repository) {
+    public ProducerService(ProducerRepository repository) {
         this.repository = repository;
     }
 
@@ -40,6 +40,6 @@ public class ProducerService {
     public void update(Producer producerToUpdate) {
         var producer = findByIdOrThrowNotFound(producerToUpdate.getId());
         producerToUpdate.setCreatedAt(producer.getCreatedAt());
-        repository.update(producerToUpdate);
+        repository.save(producerToUpdate);
     }
 }

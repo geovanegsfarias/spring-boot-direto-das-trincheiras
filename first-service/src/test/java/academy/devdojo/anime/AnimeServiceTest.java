@@ -1,8 +1,9 @@
-package academy.devdojo.service;
+package academy.devdojo.anime;
 
 import academy.devdojo.commons.AnimeUtils;
 import academy.devdojo.domain.Anime;
-import academy.devdojo.repository.AnimeHardCodedRepository;
+import academy.devdojo.repository.AnimeRepository;
+import academy.devdojo.service.AnimeService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,9 +23,9 @@ import static java.util.Collections.singletonList;
 @ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class AnimeServiceTest {
-    @Mock
-    private AnimeHardCodedRepository repository;
     private List<Anime> animeList;
+    @Mock
+    private AnimeRepository repository;
     @InjectMocks
     private AnimeService service;
     @InjectMocks
@@ -42,7 +43,6 @@ class AnimeServiceTest {
         BDDMockito.when(repository.findAll()).thenReturn(animeList);
 
         var animes = service.findAll(null);
-
         Assertions.assertThat(animes).isNotNull().hasSameElementsAs(animeList);
     }
 
@@ -52,6 +52,7 @@ class AnimeServiceTest {
     void findAll_ReturnsFoundAnimesInList_WhenNameIsFound() {
         var anime = animeList.getFirst();
         var expectedAnimesFound = singletonList(anime);
+
         BDDMockito.when(repository.findByName(anime.getName())).thenReturn(expectedAnimesFound);
 
         var animesFound = service.findAll(anime.getName());
@@ -66,7 +67,6 @@ class AnimeServiceTest {
         BDDMockito.when(repository.findByName(name)).thenReturn(emptyList());
 
         var animes = service.findAll(name);
-
         Assertions.assertThat(animes).isNotNull().isEmpty();
     }
 
@@ -84,7 +84,7 @@ class AnimeServiceTest {
 
     @Test
     @DisplayName("findById throws ResponseStatusException when anime is not found")
-    @Order(4)
+    @Order(5)
     void findById_ThrowsResponseStatusException_WhenAnimeIsNotFound() {
         var expectedAnime = animeList.getFirst();
         BDDMockito.when(repository.findById(expectedAnime.getId())).thenReturn(Optional.empty());
@@ -112,11 +112,8 @@ class AnimeServiceTest {
     @Order(7)
     void delete_RemoveAnime_WhenSuccessful() { // Lidando com metodo que retorna void
         var animeToDelete = animeList.getFirst();
-
         BDDMockito.when(repository.findById(animeToDelete.getId())).thenReturn(Optional.of(animeToDelete));
         BDDMockito.doNothing().when(repository).delete(animeToDelete);
-
-        service.delete(animeToDelete.getId());
 
         Assertions.assertThatNoException().isThrownBy(() -> service.delete(animeToDelete.getId()));
     }
@@ -141,7 +138,7 @@ class AnimeServiceTest {
         animeToUpdate.setName("Aniplex");
 
         BDDMockito.when(repository.findById(animeToUpdate.getId())).thenReturn(Optional.of(animeToUpdate));
-        BDDMockito.doNothing().when(repository).update(animeToUpdate);
+        BDDMockito.when(repository.save(animeToUpdate)).thenReturn(animeToUpdate);
 
         Assertions.assertThatNoException().isThrownBy(() -> service.update(animeToUpdate));
     }
