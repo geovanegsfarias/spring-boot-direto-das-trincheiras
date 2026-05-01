@@ -1,9 +1,30 @@
 spring:
+  config:
+    import: optional:classpath:.env[.properties]
   application:
     name: user-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/user_service?useTimezone=true&serverTimezone=UTC&createDatabaseIfNotExist=true
+    username: ${ENV_ROOT_USER:root} # Procura por ENV_ROOT_USER e usa, se não achar usa 'root'
+    password: ${ENV_ROOT_PASSWORD:devdojo} # Mesma coisa
+  jpa:
+    show-sql: true
+threads:
+  virtual:
+    enabled: true
+
 logging:
   level:
     academy.devdojo: debug
 server:
+  port: 8090
+  servlet:
+    context-path: /
+
   error:
-    include-stacktrace: ON_PARAM
+    include-stacktrace: on_param
+  tomcat:
+    threads:
+      max: 20
+
+# Essas variáveis de ambiente estão no arquivo .env do mesmo diretório
