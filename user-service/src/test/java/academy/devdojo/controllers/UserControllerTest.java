@@ -115,13 +115,14 @@ class UserControllerTest {
     @Order(5)
     void findById_ThrowsNotFound_WhenUserIsNotFound() throws Exception {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
+        var response = fileUtils.readResourceFile("user/get-response-user-by-id-404.json");
 
         var id = 99L;
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL + "/{id}", id))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.status().reason("User not found"));
+                .andExpect(MockMvcResultMatchers.content().json(response));
     }
 
     @Test
@@ -167,8 +168,8 @@ class UserControllerTest {
     @Order(8)
     void update_ThrowsNotFound_WhenUserIsNotFound() throws Exception {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
-
         var request = fileUtils.readResourceFile("user/put-request-user-404.json");
+        var response = fileUtils.readResourceFile("user/put-response-user-404.json");
 
         mockMvc.perform(MockMvcRequestBuilders
                         .put(URL)
@@ -177,7 +178,7 @@ class UserControllerTest {
                 )
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.status().reason("User not found"));
+                .andExpect(MockMvcResultMatchers.content().json(response));
     }
 
     @Test
@@ -198,13 +199,14 @@ class UserControllerTest {
     @Order(10)
     void delete_ThrowsNotFound_WhenUserIsNotFound() throws Exception {
         BDDMockito.when(userData.getUsers()).thenReturn(userList);
+        var response = fileUtils.readResourceFile("user/delete-response-user-404.json");
 
         var id = 99L;
 
         mockMvc.perform(MockMvcRequestBuilders.delete(URL + "/{id}", id))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.status().reason("User not found"));
+                .andExpect(MockMvcResultMatchers.content().json(response));
     }
 
     @ParameterizedTest

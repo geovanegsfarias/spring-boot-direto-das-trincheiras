@@ -122,13 +122,14 @@ class ProducerControllerTest {
     @Order(5)
     void findById_ThrowsNotFound_WhenProducerIsNotFound() throws Exception { // o contexto(mock) não retorna um response body, então buscamos outras formas:
         BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
+        var response = fileUtils.readResourceFile("producer/get-response-producer-by-id-404.json");
 
         var id = 99L;
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL + "/{id}", id))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.status().reason("Producer not found"));
+                .andExpect(MockMvcResultMatchers.content().json(response));
     }
 
     @Test
@@ -201,8 +202,8 @@ class ProducerControllerTest {
     @Order(9)
     void update_ThrowsNotFound_WhenProducerIsNotFound() throws Exception {
         BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
-
         var request = fileUtils.readResourceFile("producer/put-request-producer-404.json");
+        var response = fileUtils.readResourceFile("producer/put-response-producer-404.json");
 
         mockMvc.perform(MockMvcRequestBuilders
                         .put(URL)
@@ -211,7 +212,7 @@ class ProducerControllerTest {
                 )
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.status().reason("Producer not found"));
+                .andExpect(MockMvcResultMatchers.content().json(response));
     }
 
     @ParameterizedTest
@@ -259,13 +260,14 @@ class ProducerControllerTest {
     @Order(12)
     void delete_ThrowsNotFound_WhenProducerIsNotFound() throws Exception {
         BDDMockito.when(producerData.getProducers()).thenReturn(producerList);
+        var response = fileUtils.readResourceFile("producer/delete-response-producer-404.json");
 
         var id = 99L;
 
         mockMvc.perform(MockMvcRequestBuilders.delete(URL + "/{id}", id))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.status().reason("Producer not found"));
+                .andExpect(MockMvcResultMatchers.content().json(response));
     }
 
     private static Stream<Arguments> postProducerBadRequestSource() {
