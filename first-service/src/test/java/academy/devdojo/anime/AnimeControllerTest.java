@@ -2,11 +2,7 @@ package academy.devdojo.anime;
 
 import academy.devdojo.commons.AnimeUtils;
 import academy.devdojo.commons.FileUtils;
-import academy.devdojo.controllers.AnimeController;
 import academy.devdojo.domain.Anime;
-import academy.devdojo.mapper.AnimeMapperImpl;
-import academy.devdojo.repository.AnimeRepository;
-import academy.devdojo.service.AnimeService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,7 +13,7 @@ import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -31,7 +27,7 @@ import java.util.stream.Stream;
 
 @WebMvcTest(controllers = AnimeController.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Import({AnimeMapperImpl.class, AnimeService.class, AnimeRepository.class, FileUtils.class, AnimeUtils.class})
+@ComponentScan(basePackages = {"academy.devdojo.producer", "academy.devdojo.commons"}) // package by feature
 class AnimeControllerTest {
     private static final String URL = "/v1/animes";
     private List<Anime> animeList;

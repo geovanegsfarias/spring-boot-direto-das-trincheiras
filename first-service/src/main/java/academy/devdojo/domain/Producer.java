@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class Producer {
     @EqualsAndHashCode.Include
     @Id

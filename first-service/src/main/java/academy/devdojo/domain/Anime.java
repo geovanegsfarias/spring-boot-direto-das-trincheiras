@@ -12,6 +12,8 @@ import lombok.*;
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class Anime {
     @EqualsAndHashCode.Include
     @Id

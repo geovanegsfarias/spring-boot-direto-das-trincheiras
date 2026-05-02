@@ -1,11 +1,11 @@
-package academy.devdojo.response;
+package academy.devdojo.anime;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class AnimeGetResponse {
+public class AnimePostResponse {
     private Long id;
     private String name;
 }

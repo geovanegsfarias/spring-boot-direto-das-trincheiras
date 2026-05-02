@@ -2,11 +2,7 @@ package academy.devdojo.producer;
 
 import academy.devdojo.commons.FileUtils;
 import academy.devdojo.commons.ProducerUtils;
-import academy.devdojo.controllers.ProducerController;
 import academy.devdojo.domain.Producer;
-import academy.devdojo.mapper.ProducerMapperImpl;
-import academy.devdojo.repository.ProducerRepository;
-import academy.devdojo.service.ProducerService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -34,7 +29,7 @@ import java.util.stream.Stream;
 @WebMvcTest(controllers = ProducerController.class)
 // slice test: starta apenas o que é necessário para fazer o teste da camada web, como parâmetro qual controller queremos carregar no contexto(mock)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Import({ProducerMapperImpl.class, ProducerService.class, ProducerRepository.class, FileUtils.class, ProducerUtils.class})
+@ComponentScan(basePackages = {"academy.devdojo.producer", "academy.devdojo.commons"}) // package by feature
 // import de tudo que o teste precisa pra funcionar (por padrão não carrega anotações de criação de beans)
 // alternativa ao @Import que talvez não faça tanto sentido: @ComponentScan(basePackages = {"academy.devdojo"})
 //@ActiveProfiles("test")
