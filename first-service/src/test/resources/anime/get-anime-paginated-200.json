@@ -1,0 +1,49 @@
+{
+  "totalElements": 5,
+  "totalPages": 1,
+  "size": 5,
+  "content": [
+    {
+      "id": 1,
+      "name": "Jujutsu Kaisen"
+    },
+    {
+      "id": 2,
+      "name": "Naruto Shippuden"
+    },
+    {
+      "id": 3,
+      "name": "Dragon Ball Super"
+    },
+    {
+      "id": 4,
+      "name": "Hunter X Hunter"
+    },
+    {
+      "id": 5,
+      "name": "JoJo's Bizarre Adventure"
+    }
+  ],
+  "number": 0,
+  "sort": {
+    "sorted": false,
+    "empty": true,
+    "unsorted": true
+  },
+  "numberOfElements": 5,
+  "first": true,
+  "last": true,
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 5,
+    "sort": {
+      "sorted": false,
+      "empty": true,
+      "unsorted": true
+    },
+    "offset": 0,
+    "unpaged": false,
+    "paged": true
+  },
+  "empty": false
+}
