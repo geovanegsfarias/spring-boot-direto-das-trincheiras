@@ -45,6 +45,31 @@ class ProducerControllerTest {
     @Autowired
     private ProducerUtils producerUtils;
 
+    private static Stream<Arguments> putProducerBadRequestSource() {
+        var allRequiredErrors = allRequiredErrors();
+        allRequiredErrors.add("The field 'id' cannot be null");
+
+        return Stream.of(
+                Arguments.of("put-request-producer-empty-fields-400.json", allRequiredErrors),
+                Arguments.of("put-request-producer-blank-fields-400.json", allRequiredErrors)
+        );
+    }
+
+    private static Stream<Arguments> postProducerBadRequestSource() {
+        var allRequiredErrors = allRequiredErrors();
+
+        return Stream.of(
+                Arguments.of("post-request-producer-empty-fields-400.json", allRequiredErrors),
+                Arguments.of("post-request-producer-blank-fields-400.json", allRequiredErrors)
+        );
+    }
+
+    private static List<String> allRequiredErrors() {
+        var nameRequiredError = "The field 'name' is required";
+
+        return new ArrayList<>(List.of(nameRequiredError));
+    }
+
     @BeforeEach
     void init() {
         producerList = producerUtils.newProducerList();
@@ -248,31 +273,6 @@ class ProducerControllerTest {
         Assertions.assertThat(resolvedException).isNotNull();
 
         Assertions.assertThat(resolvedException.getMessage()).contains(errors);
-    }
-
-    private static Stream<Arguments> putProducerBadRequestSource() {
-        var allRequiredErrors = allRequiredErrors();
-        allRequiredErrors.add("The field 'id' cannot be null");
-
-        return Stream.of(
-                Arguments.of("put-request-producer-empty-fields-400.json", allRequiredErrors),
-                Arguments.of("put-request-producer-blank-fields-400.json", allRequiredErrors)
-        );
-    }
-
-    private static Stream<Arguments> postProducerBadRequestSource() {
-        var allRequiredErrors = allRequiredErrors();
-
-        return Stream.of(
-                Arguments.of("post-request-producer-empty-fields-400.json", allRequiredErrors),
-                Arguments.of("post-request-producer-blank-fields-400.json", allRequiredErrors)
-        );
-    }
-
-    private static List<String> allRequiredErrors() {
-        var nameRequiredError = "The field 'name' is required";
-
-        return new ArrayList<>(List.of(nameRequiredError));
     }
 
 }

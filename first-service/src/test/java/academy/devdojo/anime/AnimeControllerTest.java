@@ -43,6 +43,31 @@ class AnimeControllerTest {
     @Autowired
     private AnimeUtils animeUtils;
 
+    private static Stream<Arguments> putAnimeBadRequestSource() {
+        var allRequiredErrors = allRequiredErrors();
+        allRequiredErrors.add("The field 'id' cannot be null");
+
+        return Stream.of(
+                Arguments.of("put-request-anime-empty-fields-400.json", allRequiredErrors),
+                Arguments.of("put-request-anime-blank-fields-400.json", allRequiredErrors)
+        );
+    }
+
+    private static Stream<Arguments> postAnimeBadRequestSource() {
+        var allRequiredErrors = allRequiredErrors();
+
+        return Stream.of(
+                Arguments.of("post-request-anime-empty-fields-400.json", allRequiredErrors),
+                Arguments.of("post-request-anime-blank-fields-400.json", allRequiredErrors)
+        );
+    }
+
+    private static List<String> allRequiredErrors() {
+        var nameRequiredError = "The field 'name' is required";
+
+        return new ArrayList<>(List.of(nameRequiredError));
+    }
+
     @BeforeEach
     void init() {
         animeList = animeUtils.newAnimeList();
@@ -261,31 +286,6 @@ class AnimeControllerTest {
         Assertions.assertThat(resolvedException).isNotNull();
 
         Assertions.assertThat(resolvedException.getMessage()).contains(errors);
-    }
-
-    private static Stream<Arguments> putAnimeBadRequestSource() {
-        var allRequiredErrors = allRequiredErrors();
-        allRequiredErrors.add("The field 'id' cannot be null");
-
-        return Stream.of(
-                Arguments.of("put-request-anime-empty-fields-400.json", allRequiredErrors),
-                Arguments.of("put-request-anime-blank-fields-400.json", allRequiredErrors)
-        );
-    }
-
-    private static Stream<Arguments> postAnimeBadRequestSource() {
-        var allRequiredErrors = allRequiredErrors();
-
-        return Stream.of(
-                Arguments.of("post-request-anime-empty-fields-400.json", allRequiredErrors),
-                Arguments.of("post-request-anime-blank-fields-400.json", allRequiredErrors)
-        );
-    }
-
-    private static List<String> allRequiredErrors() {
-        var nameRequiredError = "The field 'name' is required";
-
-        return new ArrayList<>(List.of(nameRequiredError));
     }
 
 }

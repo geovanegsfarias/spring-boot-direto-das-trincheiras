@@ -1,6 +1,5 @@
 package academy.devdojo.anime;
 
-import academy.devdojo.domain.Anime;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

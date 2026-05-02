@@ -42,6 +42,40 @@ class UserControllerTest {
     @Autowired
     private UserUtils userUtils;
 
+    private static Stream<Arguments> postUserBadRequestSource() {
+        var firstNameRequiredError = "The field 'firstName' is required";
+        var lastNameRequiredError = "The field 'lastName' is required";
+        var emailRequiredError = "The field 'email' is required";
+        var emailInvalidError = "The e-mail is not valid";
+
+        var allErrors = List.of(firstNameRequiredError, lastNameRequiredError, emailRequiredError);
+        var emailError = Collections.singletonList(emailInvalidError);
+
+        return Stream.of(  // Para cada um dos argumentos, o teste parametrizado será executado.
+                Arguments.of("post-request-user-empty-fields-400.json", allErrors),
+                Arguments.of("post-request-user-blank-fields-400.json", allErrors),
+                Arguments.of("post-request-user-invalid-email-400.json", emailError)
+        ); // Passando também as asserções como argumentos para validar diferentes tipos de erros (cenários) diferentes
+    }
+
+    private static Stream<Arguments> putUserBadRequestSource() {
+        var idNotNullError = "The field 'id' cannot be null";
+        var firstNameRequiredError = "The field 'firstName' is required";
+        var lastNameRequiredError = "The field 'lastName' is required";
+        var emailRequiredError = "The field 'email' is required";
+        var emailInvalidError = "The e-mail is not valid";
+
+        var allErrors = List.of(idNotNullError, firstNameRequiredError, lastNameRequiredError, emailRequiredError);
+        var emailError = Collections.singletonList(emailInvalidError);
+
+        return Stream.of(
+                Arguments.of("put-request-user-empty-fields-400.json", allErrors),
+                Arguments.of("put-request-user-blank-fields-400.json", allErrors),
+                Arguments.of("put-request-user-invalid-email-400.json", emailError)
+        );
+
+    }
+
     @BeforeEach
     void init() {
         userList = userUtils.newUserList();
@@ -245,40 +279,6 @@ class UserControllerTest {
         Assertions.assertThat(resolvedException).isNotNull();
 
         Assertions.assertThat(resolvedException.getMessage()).contains(errors);
-    }
-
-    private static Stream<Arguments> postUserBadRequestSource() {
-        var firstNameRequiredError = "The field 'firstName' is required";
-        var lastNameRequiredError = "The field 'lastName' is required";
-        var emailRequiredError = "The field 'email' is required";
-        var emailInvalidError = "The e-mail is not valid";
-
-        var allErrors = List.of(firstNameRequiredError, lastNameRequiredError, emailRequiredError);
-        var emailError = Collections.singletonList(emailInvalidError);
-
-        return Stream.of(  // Para cada um dos argumentos, o teste parametrizado será executado.
-                Arguments.of("post-request-user-empty-fields-400.json", allErrors),
-                Arguments.of("post-request-user-blank-fields-400.json", allErrors),
-                Arguments.of("post-request-user-invalid-email-400.json", emailError)
-        ); // Passando também as asserções como argumentos para validar diferentes tipos de erros (cenários) diferentes
-    }
-
-    private static Stream<Arguments> putUserBadRequestSource() {
-        var idNotNullError = "The field 'id' cannot be null";
-        var firstNameRequiredError = "The field 'firstName' is required";
-        var lastNameRequiredError = "The field 'lastName' is required";
-        var emailRequiredError = "The field 'email' is required";
-        var emailInvalidError = "The e-mail is not valid";
-
-        var allErrors = List.of(idNotNullError, firstNameRequiredError, lastNameRequiredError, emailRequiredError);
-        var emailError = Collections.singletonList(emailInvalidError);
-
-        return Stream.of(
-                Arguments.of("put-request-user-empty-fields-400.json", allErrors),
-                Arguments.of("put-request-user-blank-fields-400.json", allErrors),
-                Arguments.of("put-request-user-invalid-email-400.json", emailError)
-        );
-
     }
 
 }

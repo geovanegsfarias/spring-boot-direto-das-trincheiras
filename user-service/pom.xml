@@ -78,7 +78,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
-                    <argLine>-Dspring.profiles.active=test</argLine> <!-- força o spring a usar o profile 'test' quando rodar os testes (usa o application-test.yaml) -->
+                    <argLine>-Dspring.profiles.active=test
+                    </argLine> <!-- força o spring a usar o profile 'test' quando rodar os testes (usa o application-test.yaml) -->
                 </configuration> <!-- Não esquecer de usar isso, caso application-test.yaml não existir, o spring vai usar application.yaml e provavelmente usará o banco de dev nos testes (erro fatal que pode apagar o banco)-->
             </plugin> <!-- Para não ter esse risco, o nome do arquivo já é por padrão application.yaml e não application-test.yaml, caso esqueça de usar o plugin não vai usar o banco de dev -->
             <plugin>
