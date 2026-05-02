@@ -27,7 +27,7 @@ import java.util.stream.Stream;
 
 @WebMvcTest(controllers = AnimeController.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@ComponentScan(basePackages = {"academy.devdojo.producer", "academy.devdojo.commons"}) // package by feature
+@ComponentScan(basePackages = {"academy.devdojo.anime", "academy.devdojo.commons"}) // package by feature
 class AnimeControllerTest {
     private static final String URL = "/v1/animes";
     private List<Anime> animeList;
@@ -79,10 +79,7 @@ class AnimeControllerTest {
     @Order(3)
     void findAll_ReturnsEmptyList_WhenNameIsNull() throws Exception {
         var response = fileUtils.readResourceFile("anime/get-anime-x-name-200.json");
-        var id = 1L;
         var name = "x";
-        var foundAnime = animeList.stream().filter(anime -> anime.getId().equals(id)).findFirst();
-        BDDMockito.when(repository.findById(id)).thenReturn(foundAnime);
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL).param("name", name))
                 .andDo(MockMvcResultHandlers.print())
@@ -110,7 +107,6 @@ class AnimeControllerTest {
     @Order(5)
     void findById_ThrowsNotFound_WhenAnimeIsNotFound() throws Exception {
         var response = fileUtils.readResourceFile("anime/get-response-producer-by-id-404.json");
-
         var id = 99L;
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL + "/{id}", id))
@@ -158,7 +154,6 @@ class AnimeControllerTest {
     @Order(8)
     void delete_ThrowsNotFound_WhenAnimeIsNotFound() throws Exception {
         var response = fileUtils.readResourceFile("anime/delete-response-anime-404.json");
-
         var id = 99L;
 
         mockMvc.perform(MockMvcRequestBuilders.delete(URL + "/{id}", id))

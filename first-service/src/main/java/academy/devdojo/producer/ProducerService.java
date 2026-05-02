@@ -35,8 +35,12 @@ public class ProducerService {
     }
 
     public void update(Producer producerToUpdate) {
-        var producer = findByIdOrThrowNotFound(producerToUpdate.getId());
-        producerToUpdate.setCreatedAt(producer.getCreatedAt());
+        assertThatProducerExists(producerToUpdate.getId());
         repository.save(producerToUpdate);
     }
+
+    public void assertThatProducerExists(Long id) {
+        findByIdOrThrowNotFound(id);
+    }
+
 }

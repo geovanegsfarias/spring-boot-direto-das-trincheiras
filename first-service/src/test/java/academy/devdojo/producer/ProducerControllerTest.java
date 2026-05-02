@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ComponentScan(basePackages = {"academy.devdojo.producer", "academy.devdojo.commons"}) // package by feature
 // import de tudo que o teste precisa pra funcionar (por padrão não carrega anotações de criação de beans)
-// alternativa ao @Import que talvez não faça tanto sentido: @ComponentScan(basePackages = {"academy.devdojo"})
+// alternativa ao @Import que talvez não faça tanto sentido: @ComponentScan(basePackages = {"academy.devdojo"}) (dessa vez estamos usando package by feature no component scan, não é muito comum mas interessante para projetos grandes)
 //@ActiveProfiles("test")
 class ProducerControllerTest {
     private static final String URL = "/v1/producers";
@@ -112,7 +112,6 @@ class ProducerControllerTest {
     @Order(5)
     void findById_ThrowsNotFound_WhenProducerIsNotFound() throws Exception { // o contexto(mock) não retorna um response body, então buscamos outras formas:
         var response = fileUtils.readResourceFile("producer/get-response-producer-by-id-404.json");
-
         var id = 99L;
 
         mockMvc.perform(MockMvcRequestBuilders.get(URL + "/{id}", id))
@@ -161,7 +160,6 @@ class ProducerControllerTest {
     @Order(8)
     void delete_ThrowsNotFound_WhenProducerIsNotFound() throws Exception {
         var response = fileUtils.readResourceFile("producer/delete-response-producer-404.json");
-
         var id = 99L;
 
         mockMvc.perform(MockMvcRequestBuilders.delete(URL + "/{id}", id))
