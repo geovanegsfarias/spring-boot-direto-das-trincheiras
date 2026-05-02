@@ -7,10 +7,11 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
+@ToString
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 public class User {
     @EqualsAndHashCode.Include
     @Id
