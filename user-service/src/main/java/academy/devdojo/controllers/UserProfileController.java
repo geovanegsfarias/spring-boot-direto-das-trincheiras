@@ -1,8 +1,6 @@
 package academy.devdojo.controllers;
 
-import academy.devdojo.domain.User;
 import academy.devdojo.mapper.UserProfileMapper;
-import academy.devdojo.response.UserGetResponse;
 import academy.devdojo.response.UserProfileGetResponse;
 import academy.devdojo.response.UserProfileUserGetResponse;
 import academy.devdojo.service.UserProfileService;
