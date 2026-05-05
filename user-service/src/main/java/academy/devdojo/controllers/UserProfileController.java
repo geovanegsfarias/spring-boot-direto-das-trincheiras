@@ -1,21 +1,18 @@
 package academy.devdojo.controllers;
 
-import academy.devdojo.domain.UserProfile;
-import academy.devdojo.mapper.UserMapper;
+import academy.devdojo.domain.User;
 import academy.devdojo.mapper.UserProfileMapper;
-import academy.devdojo.request.UserPostRequest;
-import academy.devdojo.request.UserPutRequest;
 import academy.devdojo.response.UserGetResponse;
-import academy.devdojo.response.UserPostResponse;
 import academy.devdojo.response.UserProfileGetResponse;
+import academy.devdojo.response.UserProfileUserGetResponse;
 import academy.devdojo.service.UserProfileService;
-import academy.devdojo.service.UserService;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -41,6 +38,17 @@ public class UserProfileController {
         var userProfileGetResponses = mapper.toUserProfileGetResponse(userProfiles);
 
         return ResponseEntity.ok(userProfileGetResponses);
+    }
+
+    @GetMapping("profiles/{id}/users")
+    public ResponseEntity<List<UserProfileUserGetResponse>> findAll(@PathVariable Long id) {
+        log.debug("Request received to list all users by profile id '{}'", id);
+
+        var users = service.findAllUsersByProfileId(id);
+
+        var userProfileUserGetResponseList = mapper.toUserProfileUserGetResponseList(users);
+
+        return ResponseEntity.ok().body(userProfileUserGetResponseList);
     }
 
 }

@@ -1,8 +1,6 @@
 package academy.devdojo.service;
 
 import academy.devdojo.domain.Profile;
-import academy.devdojo.exception.EmailAlreadyExistsException;
-import academy.devdojo.exception.NotFoundException;
 import academy.devdojo.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

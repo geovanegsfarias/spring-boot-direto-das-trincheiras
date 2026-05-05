@@ -3,8 +3,6 @@ package academy.devdojo.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @With
 @Getter
 @Setter
