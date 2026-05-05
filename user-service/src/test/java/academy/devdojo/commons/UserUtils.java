@@ -20,6 +20,14 @@ public class UserUtils {
 
     public User newUserToSave() {
         return User.builder()
+                .firstName("Colt")
+                .lastName("Brawler")
+                .email("colt@gmail.com")
+                .build();
+    }
+
+    public User newUserSaved() {
+        return User.builder()
                 .id(99L)
                 .firstName("Colt")
                 .lastName("Brawler")

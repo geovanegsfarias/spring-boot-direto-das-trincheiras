@@ -12,7 +12,7 @@ import org.springframework.test.context.jdbc.Sql;
 // slice test para o banco de dados
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-// o @DataJpaTest configura um banco de dados em memoria para os testes, para usar o seu próprio banco, você precisa desabilitar essa configuração
+// o @DataJpaTest configura um banco de dados em memória para os testes, para usar o seu próprio banco, você precisa desabilitar essa configuração
 @Import(UserUtils.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 //@Transactional(propagation = Propagation.NOT_SUPPORTED) // os testes de repositorio rodam em transações, o que acontece em um teste é desfeito após o seu fim, para desabilitar isso, use essa anotação (oq o teste 1 fez, vai ser mantido para o teste 2), isso aumenta o acoplamento dos testes, mas aumenta a velocidade com q eles são executados, não é recomendado usar
@@ -31,6 +31,7 @@ class UserRepositoryTest {
 
         Assertions.assertThat(savedUser).hasNoNullFieldsOrProperties(); // se todos os campos foram inseridos
         Assertions.assertThat(savedUser.getId()).isEqualTo(1L);
+
     }
 
     @Test
