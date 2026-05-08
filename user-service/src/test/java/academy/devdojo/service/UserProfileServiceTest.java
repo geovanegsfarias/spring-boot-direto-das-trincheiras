@@ -65,7 +65,7 @@ class UserProfileServiceTest {
                 .filter(p -> p.getProfile().getId().equals(profileId))
                 .map(UserProfile::getUser).toList(); // map(p -> p.getUser())
 
-        BDDMockito.when(service.findAllUsersByProfileId(profileId)).thenReturn(usersByProfileId);
+        BDDMockito.when(repository.findAllUsersByProfileId(profileId)).thenReturn(usersByProfileId);
 
         var users = service.findAllUsersByProfileId(profileId);
 

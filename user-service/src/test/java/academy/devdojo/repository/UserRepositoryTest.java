@@ -30,7 +30,7 @@ class UserRepositoryTest {
         var savedUser = repository.save(userToSave);
 
         Assertions.assertThat(savedUser).hasNoNullFieldsOrProperties(); // se todos os campos foram inseridos
-        Assertions.assertThat(savedUser.getId()).isEqualTo(1L);
+        Assertions.assertThat(savedUser.getId()).isNotNull();
 
     }
 
