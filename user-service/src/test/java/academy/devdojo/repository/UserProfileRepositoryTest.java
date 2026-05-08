@@ -8,12 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({UserUtils.class, TestcontainersConfiguration.class})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@ActiveProfiles("itest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class UserProfileRepositoryTest {
     @Autowired
     private UserProfileRepository repository;

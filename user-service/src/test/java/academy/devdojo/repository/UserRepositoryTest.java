@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 
 // slice test para o banco de dados
@@ -17,6 +19,8 @@ import org.springframework.test.context.jdbc.Sql;
 @Import({UserUtils.class, TestcontainersConfiguration.class})
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 //@Transactional(propagation = Propagation.NOT_SUPPORTED) // os testes de repositorio rodam em transações, o que acontece em um teste é desfeito após o seu fim, para desabilitar isso, use essa anotação (oq o teste 1 fez, vai ser mantido para o teste 2), isso aumenta o acoplamento dos testes, mas aumenta a velocidade com q eles são executados, não é recomendado usar
+@ActiveProfiles("itest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class UserRepositoryTest {
     @Autowired
     private UserRepository repository;

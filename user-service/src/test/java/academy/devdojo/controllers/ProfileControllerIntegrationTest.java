@@ -19,6 +19,8 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -33,6 +35,8 @@ import java.util.stream.Stream;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Transactional
 @Import(TestcontainersConfiguration.class)
+@ActiveProfiles("itest")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS) // Após cada classe, limpa o contexto
 class ProfileControllerIntegrationTest {
     private static final String URL = "/v1/profiles";
     @Autowired
@@ -121,4 +125,4 @@ class ProfileControllerIntegrationTest {
     }
 }
 
-// vantagem dos testContainers: testar o ambiente mais próximo possivel do ambiente de produção, no momento usamos o h2 para testes mas nos testes de integração queremos testar o repositorio no mesmo banco que usamos em produção
+// vantagem dos testContainers: testar o ambiente mais próximo possível do ambiente de produção, no momento usamos o h2 para testes mas nos testes de integração queremos testar o repositório no mesmo banco que usamos em produção
