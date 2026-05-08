@@ -3,12 +3,14 @@ package academy.devdojo.controllers;
 import academy.devdojo.commons.FileUtils;
 import academy.devdojo.commons.ProfileUtils;
 import academy.devdojo.config.TestcontainersConfiguration;
-import academy.devdojo.domain.Profile;
 import academy.devdojo.response.ProfileGetResponse;
 import academy.devdojo.response.ProfilePostResponse;
-import jakarta.annotation.Nonnull;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import net.javacrumbs.jsonunit.assertj.JsonAssertions;
+import net.javacrumbs.jsonunit.core.Option;
 import org.assertj.core.api.Assertions;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -16,6 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -33,49 +36,56 @@ import java.util.stream.Stream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT) // Começa o servidor, carrega todas as classes, faz todas as autoconfigurações. Para não precisar escolher uma porta para o servidor, definimos uma porta disponível aleatória
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Transactional
 @Import(TestcontainersConfiguration.class)
 @ActiveProfiles("itest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS) // Após cada classe, limpa o contexto
-class ProfileControllerIntegrationTest {
+class ProfileControllerRestAssuredIT {
     private static final String URL = "/v1/profiles";
-    @Autowired
-    private TestRestTemplate testRestTemplate;
     @Autowired
     private ProfileUtils profileUtils;
     @Autowired
     private FileUtils fileUtils;
+    @LocalServerPort
+    private int port;
+
+    @BeforeEach
+    void setUrl() {
+        RestAssured.baseURI = "http://localhost";
+        RestAssured.port = port;
+    }
 
     @Test
     @DisplayName("GET v1/profiles returns a list with all profiles")
     @Sql(value = "/sql/init_two_profiles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(value = "/sql/clean_profiles.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(1)
-    void findAll_ReturnsAllProfiles_WhenSuccessful() {
-        var typeReference = new ParameterizedTypeReference<List<ProfileGetResponse>>(){};
+    void findAll_ReturnsAllProfiles_WhenSuccessful() throws IOException {
+        var response = fileUtils.readResourceFile("profile/get-profiles-200.json");
 
-        var responseEntity = testRestTemplate.exchange(URL, HttpMethod.GET, null, typeReference);
-
-        Assertions.assertThat(responseEntity).isNotNull();
-        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(responseEntity.getBody()).isNotNull().doesNotContainNull();
-
-        responseEntity
-                .getBody()
-                .forEach(profileResponse -> Assertions.assertThat(profileResponse).hasNoNullFieldsOrProperties());
+        RestAssured.given()
+                .contentType(ContentType.JSON).accept(ContentType.JSON)
+                .when()
+                .get(URL)
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body(Matchers.equalTo(response))
+                .log().all();
     }
 
     @Test
     @DisplayName("GET v1/profiles returns empty list when nothing is found")
     @Order(2)
-    void findAll_ReturnsEmptyList_WhenNothingIsFound() {
-        var typeReference = new ParameterizedTypeReference<List<ProfileGetResponse>>(){};
+    void findAll_ReturnsEmptyList_WhenNothingIsFound() throws IOException {
+        var response = fileUtils.readResourceFile("profile/get-profiles-empty-list-200.json");
 
-        var responseEntity = testRestTemplate.exchange(URL, HttpMethod.GET, null, typeReference);
-
-        Assertions.assertThat(responseEntity).isNotNull();
-        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        Assertions.assertThat(responseEntity.getBody()).isNotNull().isEmpty();
+        RestAssured.given()
+                .contentType(ContentType.JSON).accept(ContentType.JSON)
+                .when()
+                .get(URL)
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body(Matchers.equalTo(response))
+                .log().all();
     }
 
     @Test
@@ -83,20 +93,26 @@ class ProfileControllerIntegrationTest {
     @Order(3)
     void save_CreatesProfile_WhenSuccessfully() throws Exception {
         var request = fileUtils.readResourceFile("profile/post-request-profile-200.json");
-        var profileHttpEntity = buildHttpEntity(request);
-        var responseEntity = testRestTemplate.exchange(URL, HttpMethod.POST, profileHttpEntity, ProfilePostResponse.class);
+        var expectedResponse = fileUtils.readResourceFile("profile/post-response-profile-201.json");
 
-        Assertions.assertThat(responseEntity).isNotNull();
-        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        Assertions.assertThat(responseEntity.getBody()).isNotNull().hasNoNullFieldsOrProperties();
-    }
+        var response = RestAssured.given()
+                .contentType(ContentType.JSON).accept(ContentType.JSON)
+                .body(request)
+                .when()
+                .post(URL)
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .log().all()
+                .extract().response().body().asString(); // Quando vamos testar o POST: pegamos a resposta como string para não precisarmos alterar o id que vem diferente do esperado e utilizaremos outra biblioteca para comparar.
 
-    private static HttpEntity<String> buildHttpEntity(String request) {
-        var httpHeaders = new HttpHeaders();
-        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+        JsonAssertions.assertThatJson(response)
+                .node("id")
+                .asNumber()
+                .isPositive();
 
-        var profileHttpEntity = new HttpEntity<>(request, httpHeaders);
-        return profileHttpEntity;
+        JsonAssertions.assertThatJson(response)
+                .whenIgnoringPaths("id")
+                .isEqualTo(expectedResponse);
     }
 
     @ParameterizedTest
@@ -106,15 +122,20 @@ class ProfileControllerIntegrationTest {
     void save_ReturnsBadRequest_WhenFieldsAreNotValid(String requestFile, String responseFile) throws Exception { // testando bean validation, nesse caso estamos testando todos os campos de uma vez, mas em projetos reais buscar testar de modo unitário (cada campo por vez)
         var request = fileUtils.readResourceFile("profile/%s".formatted(requestFile));
         var expectedResponse = fileUtils.readResourceFile("profile/%s".formatted(responseFile));
-        var profileEntity = buildHttpEntity(request);
 
-        var responseEntity = testRestTemplate.exchange(URL, HttpMethod.POST, profileEntity, String.class);
+        var response = RestAssured.given()
+                .contentType(ContentType.JSON).accept(ContentType.JSON)
+                .body(request)
+                .when()
+                .post(URL)
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .log().all()
+                .extract().response().body().asString();
 
-        Assertions.assertThat(responseEntity).isNotNull();
-        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-
-        JsonAssertions.assertThatJson(responseEntity.getBody())
-                .whenIgnoringPaths("timestamp") // biblioteca para ignorar o timestamp, pois a data muda toda hora e atrapalha o teste
+        JsonAssertions.assertThatJson(response)
+                .whenIgnoringPaths("timestamp")
+                .when(Option.IGNORING_ARRAY_ORDER)
                 .isEqualTo(expectedResponse);
     }
 

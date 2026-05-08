@@ -1,1 +1,6 @@
-{"timestamp":"2026-05-08T11:28:37.202+00:00","status":400,"error":"Bad Request","path":"/v1/profiles"}
+{
+  "timestamp": "2026-05-08T11:28:37.202+00:00",
+  "status": 400,
+  "error": "Bad Request",
+  "path": "/v1/profiles"
+}

@@ -20,6 +20,7 @@
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <com.mysql.version>9.0.0</com.mysql.version>
         <json-junit-assertj.version>3.4.1</json-junit-assertj.version>
+        <rest-assured.version>5.5.0</rest-assured.version>
     </properties>
     <dependencies>
         <dependency>
@@ -75,6 +76,13 @@
             <groupId>net.javacrumbs.json-unit</groupId>
             <artifactId>json-unit-assertj</artifactId>
             <version>${json-junit-assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${rest-assured.version}</version>
             <scope>test</scope>
         </dependency>
 
