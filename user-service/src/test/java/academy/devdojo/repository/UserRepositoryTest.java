@@ -42,7 +42,7 @@ class UserRepositoryTest {
     @Test
     @DisplayName("findAll returns a list with all users")
     @Order(2)
-    @Sql("/sql/init_one_user.sql")
+    @Sql("/sql/user/init_one_user.sql")
         // antes de executar o metodo, execute esse sql
     void findAll_ReturnsAllUsers_WhenSuccessful() {
         var users = repository.findAll();
