@@ -1,4 +1,8 @@
 spring:
+  security: # isso aqui faz parte do security, só usar para testes rápidos ou até vai usar em profiles diferentes, mas nunca mandar isso pro git
+    user:
+      name: user
+      password: devdojo
   config:
     import: optional:classpath:.env[.properties]
   application:
