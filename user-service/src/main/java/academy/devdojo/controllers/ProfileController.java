@@ -5,6 +5,7 @@ import academy.devdojo.request.ProfilePostRequest;
 import academy.devdojo.response.ProfileGetResponse;
 import academy.devdojo.response.ProfilePostResponse;
 import academy.devdojo.service.ProfileService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("v1/profiles")
 @Slf4j
+@SecurityRequirement(name = "basicAuth")
 public class ProfileController {
     private final ProfileMapper mapper;
     private final ProfileService service;
