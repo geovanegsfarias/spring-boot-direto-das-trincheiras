@@ -1,1 +1,1 @@
-{"error":"Bad Request","message":"The e-mail is not valid, The field 'email' is required, The field 'firstName' is required, The field 'lastName' is required","path":"/v1/users","status":400,"timestamp":"2026-05-10T09:55:47.9569413-03:00"}
+{"error":"Bad Request","message":"The e-mail is not valid, The field 'email' is required, The field 'firstName' is required, The field 'lastName' is required, The field 'password' is required","path":"/v1/users","status":400,"timestamp":"2026-05-10T09:55:47.9569413-03:00"}

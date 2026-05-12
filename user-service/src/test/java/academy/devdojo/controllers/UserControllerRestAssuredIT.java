@@ -2,10 +2,13 @@ package academy.devdojo.controllers;
 
 import academy.devdojo.commons.FileUtils;
 import academy.devdojo.commons.UserUtils;
+import academy.devdojo.config.RestAssuredConfig;
 import academy.devdojo.config.TestcontainersConfiguration;
+import academy.devdojo.exception.NotFoundException;
 import academy.devdojo.repository.UserRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
 import net.javacrumbs.jsonunit.assertj.JsonAssertions;
 import net.javacrumbs.jsonunit.core.Option;
 import org.assertj.core.api.Assertions;
@@ -15,10 +18,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -26,7 +31,7 @@ import org.springframework.test.context.jdbc.Sql;
 import java.util.stream.Stream;
 
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = RestAssuredConfig.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Import(TestcontainersConfiguration.class)
 @ActiveProfiles("itest")
@@ -37,15 +42,21 @@ class UserControllerRestAssuredIT {
     private UserUtils userUtils;
     @Autowired
     private FileUtils fileUtils;
-    @LocalServerPort
-    private int port;
     @Autowired
     private UserRepository repository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    @Qualifier(value = "requestSpecificationRegularUser")
+    private RequestSpecification requestSpecificationRegularUser;
+    @Autowired
+    @Qualifier(value = "requestSpecificationAdminUser")
+    private RequestSpecification requestSpecificationAdminUser;
 
     @BeforeEach
     void setUrl() {
-        RestAssured.baseURI = "http://localhost";
-        RestAssured.port = port;
+        RestAssured.requestSpecification = requestSpecificationRegularUser;
     }
 
     @Test
@@ -54,6 +65,8 @@ class UserControllerRestAssuredIT {
     @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(1)
     void findAll_ReturnsAllUsers_WhenArgumentIsNull() throws Exception {
+        RestAssured.requestSpecification = requestSpecificationAdminUser;
+
         var expectedResponse = fileUtils.readResourceFile("user/get-user-null-first_name-200.json");
 
         var response = RestAssured.given()
@@ -86,6 +99,8 @@ class UserControllerRestAssuredIT {
     @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(2)
     void findAll_ReturnsFoundUserInList_WhenFirstNameIsFound() throws Exception {
+        RestAssured.requestSpecification = requestSpecificationAdminUser;
+
         var expectedResponse = fileUtils.readResourceFile("user/get-user-william-first_name-200.json");
         var firstName = "William";
 
@@ -110,6 +125,8 @@ class UserControllerRestAssuredIT {
     @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(3)
     void findAll_ReturnsEmptyList_WhenFirstNameIsNotFound() throws Exception {
+        RestAssured.requestSpecification = requestSpecificationAdminUser;
+
         var expectedResponse = fileUtils.readResourceFile("user/get-user-x-first_name-200.json");
         var firstName = "x";
 
@@ -134,6 +151,8 @@ class UserControllerRestAssuredIT {
     @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(4)
     void findById_ReturnsUserById_WhenSuccessful() throws Exception {
+        RestAssured.requestSpecification = requestSpecificationAdminUser;
+
         var expectedResponse = fileUtils.readResourceFile("user/get-user-by-id-1-200.json");
         var users = repository.findByFirstNameIgnoreCase("William");
 
@@ -156,6 +175,8 @@ class UserControllerRestAssuredIT {
 
     @Test
     @DisplayName("GET v1/users/99 throws NotFound 404 when user is not found")
+    @Sql(value = "/sql/user/init_three_user.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(5)
     void findById_ThrowsNotFound_WhenUserIsNotFound() throws Exception {
         var expectedResponse = fileUtils.readResourceFile("user/get-response-user-by-id-404.json");
@@ -203,10 +224,12 @@ class UserControllerRestAssuredIT {
 
     @Test
     @DisplayName("DELETE v1/users/1 removes an user")
-    @Sql(value = "/sql/user/init_one_user.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = "/sql/user/init_one_login_admin_user.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(7)
     void delete_RemoveUser_WhenSuccessful() {
+        RestAssured.requestSpecification = requestSpecificationAdminUser;
+
         var id = repository.findAll().getFirst().getId();
 
         RestAssured.given()
@@ -221,8 +244,12 @@ class UserControllerRestAssuredIT {
 
     @Test
     @DisplayName("DELETE v1/users/99 throws NotFound when user is not found")
+    @Sql(value = "/sql/user/init_one_login_admin_user.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(8)
     void delete_ThrowsNotFound_WhenUserIsNotFound() throws Exception {
+        RestAssured.requestSpecification = requestSpecificationAdminUser;
+
         var expectedResponse = fileUtils.readResourceFile("user/delete-response-user-404.json");
         var id = 99L;
 
@@ -240,12 +267,14 @@ class UserControllerRestAssuredIT {
 
     @Test
     @DisplayName("PUT v1/users updates an user")
-    @Sql(value = "/sql/user/init_one_user.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = "/sql/user/init_one_login_regular_user.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(9)
     void update_UpdatesUser_WhenSuccessful() throws Exception {
         var request = fileUtils.readResourceFile("user/put-request-user-200.json");
-        var users = repository.findByFirstNameIgnoreCase("Colt");
+        var users = repository.findByFirstNameIgnoreCase("Darryl");
+
+        var oldUser = users.getFirst();
 
         Assertions.assertThat(users).hasSize(1);
         request = request.replace("1", users.getFirst().getId().toString());
@@ -258,10 +287,16 @@ class UserControllerRestAssuredIT {
                 .then()
                 .statusCode(HttpStatus.NO_CONTENT.value())
                 .log().all();
+
+        var updatedUser = repository.findById(oldUser.getId()).orElseThrow(() -> new NotFoundException("User not found"));
+        var encryptedPassword = updatedUser.getPassword();
+        Assertions.assertThat(passwordEncoder.matches("super", encryptedPassword)).isTrue();
     }
 
     @Test
     @DisplayName("PUT v1/users throws NotFound when user is not found")
+    @Sql(value = "/sql/user/init_one_login_regular_user.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(10)
     void update_ThrowsNotFound_WhenUserIsNotFound() throws Exception {
         var request = fileUtils.readResourceFile("user/put-request-user-404.json");
@@ -281,6 +316,8 @@ class UserControllerRestAssuredIT {
     @ParameterizedTest
     @MethodSource("postUserBadRequestSource")
     @DisplayName("POST v1/users returns bad request when fields are invalid")
+    @Sql(value = "/sql/user/init_one_login_regular_user.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(11)
     void save_ReturnsBadRequest_WhenFieldsAreInvalid(String requestFile, String responseFile) throws Exception {
         var request = fileUtils.readResourceFile("user/%s".formatted(requestFile));
@@ -306,6 +343,8 @@ class UserControllerRestAssuredIT {
     @ParameterizedTest
     @MethodSource("putUserBadRequestSource")
     @DisplayName("PUT v1/users returns bad request when fields are invalid")
+    @Sql(value = "/sql/user/init_one_login_regular_user.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(12)
     void update_ReturnsBadRequest_WhenFieldsAreInvalid(String requestFile, String responseFile) throws Exception {
         var request = fileUtils.readResourceFile("user/%s".formatted(requestFile));

@@ -11,9 +11,30 @@ public class UserUtils {
 
     public List<User> newUserList() {
 
-        var william = User.builder().id(1L).firstName("William").lastName("Suane").email("devdojo@gmail.com").build();
-        var geovane = User.builder().id(2L).firstName("Geovane").lastName("Gomes").email("geovanegsf02@gmail.com").build();
-        var darryl = User.builder().id(3L).firstName("Darryl").lastName("Brawler").email("darryl@gmail.com").build();
+        var william = User.builder()
+                .id(1L)
+                .firstName("William")
+                .lastName("Suane")
+                .email("devdojo@gmail.com")
+                .roles("USER")
+                .password("{bcrypt}$2a$10$zDReSHJiP0DIfAucmf0RnO5RLKjqEeaEKzh3PSueyMG54ku95EfZu")
+                .build();
+        var geovane = User.builder()
+                .id(2L)
+                .firstName("Geovane")
+                .lastName("Gomes")
+                .email("geovanegsf02@gmail.com")
+                .roles("USER")
+                .password("{bcrypt}$2a$10$zDReSHJiP0DIfAucmf0RnO5RLKjqEeaEKzh3PSueyMG54ku95EfZu")
+                .build();
+        var darryl = User.builder()
+                .id(3L)
+                .firstName("Darryl")
+                .lastName("Brawler")
+                .email("darryl@gmail.com")
+                .roles("USER")
+                .password("{bcrypt}$2a$10$zDReSHJiP0DIfAucmf0RnO5RLKjqEeaEKzh3PSueyMG54ku95EfZu")
+                .build();
 
         return new ArrayList<>(List.of(william, geovane, darryl));
     }
@@ -23,6 +44,8 @@ public class UserUtils {
                 .firstName("Colt")
                 .lastName("Brawler")
                 .email("colt@gmail.com")
+                .roles("USER")
+                .password("{bcrypt}$2a$10$zDReSHJiP0DIfAucmf0RnO5RLKjqEeaEKzh3PSueyMG54ku95EfZu")
                 .build();
     }
 
@@ -32,6 +55,8 @@ public class UserUtils {
                 .firstName("Colt")
                 .lastName("Brawler")
                 .email("colt@gmail.com")
+                .roles("USER")
+                .password("{bcrypt}$2a$10$zDReSHJiP0DIfAucmf0RnO5RLKjqEeaEKzh3PSueyMG54ku95EfZu")
                 .build();
     }
 }

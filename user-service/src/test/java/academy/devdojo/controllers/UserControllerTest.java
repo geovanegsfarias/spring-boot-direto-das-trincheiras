@@ -2,8 +2,12 @@ package academy.devdojo.controllers;
 
 import academy.devdojo.commons.FileUtils;
 import academy.devdojo.commons.UserUtils;
+import academy.devdojo.config.SecurityConfig;
 import academy.devdojo.domain.User;
+import academy.devdojo.mapper.PasswordEncoderMapper;
 import academy.devdojo.mapper.UserMapperImpl;
+import academy.devdojo.repository.ProfileRepository;
+import academy.devdojo.repository.UserProfileRepository;
 import academy.devdojo.repository.UserRepository;
 import academy.devdojo.service.UserService;
 import org.assertj.core.api.Assertions;
@@ -16,8 +20,10 @@ import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -29,7 +35,8 @@ import java.util.stream.Stream;
 
 @WebMvcTest(controllers = UserController.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Import({UserMapperImpl.class, UserService.class, UserRepository.class, FileUtils.class, UserUtils.class})
+@ComponentScan(basePackages = {"academy.devdojo"})
+@WithMockUser
 class UserControllerTest {
     private static final String URL = "/v1/users";
     private List<User> userList;
@@ -37,6 +44,10 @@ class UserControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private UserRepository repository;
+    @MockBean
+    private ProfileRepository profileRepository;
+    @MockBean
+    private UserProfileRepository userProfileRepository;
     @Autowired
     private FileUtils fileUtils;
     @Autowired
@@ -84,6 +95,7 @@ class UserControllerTest {
     @Test
     @DisplayName("GET v1/users returns a list with all users when argument is null")
     @Order(1)
+    @WithMockUser(authorities = "ADMIN")
     void findAll_ReturnsAllUsers_WhenArgumentIsNull() throws Exception {
         BDDMockito.when(repository.findAll()).thenReturn(userList);
         var response = fileUtils.readResourceFile("user/get-user-null-first_name-200.json");
@@ -97,6 +109,7 @@ class UserControllerTest {
     @Test
     @DisplayName("GET v1/users?firstName=William returns a list with found object when first name exists")
     @Order(2)
+    @WithMockUser(authorities = "ADMIN")
     void findAll_ReturnsFoundUsersInList_WhenNameIsFound() throws Exception {
         var response = fileUtils.readResourceFile("user/get-user-william-first_name-200.json");
         var firstName = "William";
@@ -113,6 +126,7 @@ class UserControllerTest {
     @Test
     @DisplayName("GET v1/users?firstName=x returns empty list when first name is not found")
     @Order(3)
+    @WithMockUser(authorities = "ADMIN")
     void findAll_ReturnsEmptyList_WhenNameIsNull() throws Exception {
         var response = fileUtils.readResourceFile("user/get-user-x-first_name-200.json");
         var firstName = "x";
@@ -212,6 +226,7 @@ class UserControllerTest {
     @Test
     @DisplayName("DELETE v1/users/1 removes a user")
     @Order(9)
+    @WithMockUser(authorities = "ADMIN")
     void delete_RemoveUser_WhenSuccessful() throws Exception {
         var id = userList.getFirst().getId();
         var foundUser = userList.stream().filter(user -> user.getId().equals(id)).findFirst();
@@ -225,6 +240,7 @@ class UserControllerTest {
     @Test
     @DisplayName("DELETE v1/users/99 throws NotFound when user is not found")
     @Order(10)
+    @WithMockUser(authorities = "ADMIN")
     void delete_ThrowsNotFound_WhenUserIsNotFound() throws Exception {
         var response = fileUtils.readResourceFile("user/delete-response-user-404.json");
         var id = 99L;

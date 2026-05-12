@@ -2,6 +2,7 @@ package academy.devdojo.controllers;
 
 import academy.devdojo.commons.FileUtils;
 import academy.devdojo.commons.ProfileUtils;
+import academy.devdojo.config.SecurityConfig;
 import academy.devdojo.domain.Profile;
 import academy.devdojo.mapper.ProfileMapperImpl;
 import academy.devdojo.repository.ProfileRepository;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -28,7 +30,8 @@ import java.util.stream.Stream;
 
 @WebMvcTest(controllers = ProfileController.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Import({ProfileMapperImpl.class, ProfileService.class, ProfileRepository.class, FileUtils.class, ProfileUtils.class})
+@Import({ProfileMapperImpl.class, ProfileService.class, ProfileRepository.class, FileUtils.class, ProfileUtils.class, SecurityConfig.class})
+@WithMockUser
 class ProfileControllerTest {
     private static final String URL = "/v1/profiles";
     private List<Profile> profileList;

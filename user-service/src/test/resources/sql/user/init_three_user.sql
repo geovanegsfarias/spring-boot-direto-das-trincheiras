@@ -1,3 +1,3 @@
-insert into user (email,first_name,last_name) values ('devdojo@gmail.com','William','Suane');
-insert into user (email,first_name,last_name) values ('geovanegsf02@gmail.com','Geovane','Gomes');
-insert into user (email,first_name,last_name) values ('darryl@gmail.com','Darryl','Brawler');
+insert into user (email,first_name,last_name, roles, password) values ('devdojo@gmail.com','William','Suane', 'USER', '{bcrypt}$2a$10$zDReSHJiP0DIfAucmf0RnO5RLKjqEeaEKzh3PSueyMG54ku95EfZu');
+insert into user (email,first_name,last_name, roles, password) values ('geovanegsf02@gmail.com','Geovane','Gomes', 'ADMIN', '{bcrypt}$2a$10$zDReSHJiP0DIfAucmf0RnO5RLKjqEeaEKzh3PSueyMG54ku95EfZu');
+insert into user (email,first_name,last_name, roles, password) values ('darryl@gmail.com','Darryl','Brawler', 'USER', '{bcrypt}$2a$10$zDReSHJiP0DIfAucmf0RnO5RLKjqEeaEKzh3PSueyMG54ku95EfZu');
