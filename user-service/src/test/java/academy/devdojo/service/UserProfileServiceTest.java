@@ -3,7 +3,6 @@ package academy.devdojo.service;
 import academy.devdojo.commons.ProfileUtils;
 import academy.devdojo.commons.UserProfileUtils;
 import academy.devdojo.commons.UserUtils;
-import academy.devdojo.domain.User;
 import academy.devdojo.domain.UserProfile;
 import academy.devdojo.repository.UserProfileRepository;
 import org.assertj.core.api.Assertions;

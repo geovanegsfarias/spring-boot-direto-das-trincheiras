@@ -21,7 +21,7 @@ import org.springframework.test.context.jdbc.Sql;
 //@Transactional(propagation = Propagation.NOT_SUPPORTED) // os testes de repositorio rodam em transações, o que acontece em um teste é desfeito após o seu fim, para desabilitar isso, use essa anotação (oq o teste 1 fez, vai ser mantido para o teste 2), isso aumenta o acoplamento dos testes, mas aumenta a velocidade com q eles são executados, não é recomendado usar
 @ActiveProfiles("itest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-class UserRepositoryTest {
+class UserRepositoryIT {
     @Autowired
     private UserRepository repository;
     @Autowired

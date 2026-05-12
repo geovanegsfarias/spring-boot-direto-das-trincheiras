@@ -43,7 +43,7 @@ class ProfileControllerTest {
     private FileUtils fileUtils;
     @Autowired
     private ProfileUtils profileUtils;
-    
+
     @BeforeEach
     void init() {
         profileList = profileUtils.newProfileList();

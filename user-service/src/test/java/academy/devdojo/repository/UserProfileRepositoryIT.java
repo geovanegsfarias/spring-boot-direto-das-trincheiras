@@ -18,7 +18,7 @@ import org.springframework.test.context.jdbc.Sql;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @ActiveProfiles("itest")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-class UserProfileRepositoryTest {
+class UserProfileRepositoryIT {
     @Autowired
     private UserProfileRepository repository;
 

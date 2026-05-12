@@ -13,7 +13,7 @@ public interface UserProfileRepository extends JpaRepository<UserProfile, Long> 
     @Query("SELECT up FROM UserProfile up join fetch up.user u join fetch up.profile p")
     List<UserProfile> retrieveAll();
 
-//  @EntityGraph(attributePaths = "{user, profile}") // quando fizer essa query, considere esses atributos na hora de retornar
+    //  @EntityGraph(attributePaths = "{user, profile}") // quando fizer essa query, considere esses atributos na hora de retornar
     @EntityGraph(value = "UserProfile.fullDetails")
     List<UserProfile> findAll();
 

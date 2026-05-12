@@ -92,7 +92,7 @@ class AnimeControllerTest {
     @Order(1)
     void findAllPaginated_ReturnsPaginatedAnimes_WhenSuccessful() throws Exception {
         var response = fileUtils.readResourceFile("anime/get-anime-paginated-200.json");
-        var pageRequest = PageRequest.of(0, 1);
+        var pageRequest = PageRequest.of(0, animeList.size());
         var pageAnime = new PageImpl<Anime>(animeList, pageRequest, animeList.size());
 
         BDDMockito.when(repository.findAll(BDDMockito.any(Pageable.class))).thenReturn(pageAnime);

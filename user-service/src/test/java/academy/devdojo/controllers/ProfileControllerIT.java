@@ -23,12 +23,12 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlMergeMode;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestRestTemplateConfig.class) // Começa o servidor, carrega todas as classes, faz todas as autoconfigurações. Para não precisar escolher uma porta para o servidor, definimos uma porta disponível aleatória
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestRestTemplateConfig.class)
+// Começa o servidor, carrega todas as classes, faz todas as autoconfigurações. Para não precisar escolher uma porta para o servidor, definimos uma porta disponível aleatória
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @Import(TestcontainersConfiguration.class)
 @ActiveProfiles("itest")
@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 @Sql(value = "/sql/user/init_one_login_regular_user.sql")
 @Sql(value = "/sql/user/clean_users.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 @SqlMergeMode(SqlMergeMode.MergeMode.MERGE)
-class ProfileControllerIntegrationTest {
+class ProfileControllerIT {
     private static final String URL = "/v1/profiles";
     @Autowired
     private TestRestTemplate testRestTemplate;
@@ -51,7 +51,8 @@ class ProfileControllerIntegrationTest {
     @Sql(value = "/sql/profile/clean_profiles.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(1)
     void findAll_ReturnsAllProfiles_WhenSuccessful() {
-        var typeReference = new ParameterizedTypeReference<List<ProfileGetResponse>>(){};
+        var typeReference = new ParameterizedTypeReference<List<ProfileGetResponse>>() {
+        };
 
         var responseEntity = testRestTemplate.exchange(URL, HttpMethod.GET, null, typeReference);
 
@@ -68,7 +69,8 @@ class ProfileControllerIntegrationTest {
     @DisplayName("GET v1/profiles returns empty list when nothing is found")
     @Order(2)
     void findAll_ReturnsEmptyList_WhenNothingIsFound() {
-        var typeReference = new ParameterizedTypeReference<List<ProfileGetResponse>>(){};
+        var typeReference = new ParameterizedTypeReference<List<ProfileGetResponse>>() {
+        };
 
         var responseEntity = testRestTemplate.exchange(URL, HttpMethod.GET, null, typeReference);
 

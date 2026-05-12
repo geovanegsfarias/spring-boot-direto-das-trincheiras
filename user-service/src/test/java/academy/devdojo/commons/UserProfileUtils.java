@@ -1,7 +1,5 @@
 package academy.devdojo.commons;
 
-import academy.devdojo.domain.Profile;
-import academy.devdojo.domain.User;
 import academy.devdojo.domain.UserProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

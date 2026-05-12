@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,13 +43,14 @@ public class UserController {
 
     @GetMapping
     @Operation(summary = "Get all users", description = "Get all users available in the system",
-    responses = {
-            @ApiResponse(description = "List all users",
-            responseCode = "200",
-            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, array = @ArraySchema(schema = @Schema(implementation = UserGetResponse.class)))
-            )
-    })
-    @PreAuthorize("hasAuthority('ADMIN')") // Configurando autorização diretamente nos métodos. Só funciona se usar @EnableMethodSecurity no topo da classe do bean de configuração de segurança.
+            responses = {
+                    @ApiResponse(description = "List all users",
+                            responseCode = "200",
+                            content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, array = @ArraySchema(schema = @Schema(implementation = UserGetResponse.class)))
+                    )
+            })
+    @PreAuthorize("hasAuthority('ADMIN')")
+    // Configurando autorização diretamente nos métodos. Só funciona se usar @EnableMethodSecurity no topo da classe do bean de configuração de segurança.
     public ResponseEntity<List<UserGetResponse>> findAll(@RequestParam(required = false) String firstName) {
         log.debug("Request received to list all users, params name {}", firstName);
 

@@ -1,7 +1,6 @@
 package academy.devdojo.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.NonNull;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
