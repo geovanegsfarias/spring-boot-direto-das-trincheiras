@@ -28,14 +28,22 @@ public class UserService {
     }
 
     public void update(User userToUpdate) {
-        findByIdOrThrowException(userToUpdate.getId());
         assertEmailDoesNotExist(userToUpdate.getEmail(), userToUpdate.getId());
+        var savedUser = findByIdOrThrowException(userToUpdate.getId());
+        userToUpdate.setRoles(savedUser.getRoles());
+        if (userToUpdate.getPassword() == null) {
+            userToUpdate.setPassword(savedUser.getPassword());
+        }
         repository.save(userToUpdate);
     }
 
     public void delete(Long id) {
         var userToDelete = findByIdOrThrowException(id);
         repository.delete(userToDelete);
+    }
+
+    public void assertUserExists(Long id) {
+        findByIdOrThrowException(id);
     }
 
     public void assertEmailDoesNotExist(String email) {

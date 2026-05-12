@@ -50,7 +50,7 @@ public class UserController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, array = @ArraySchema(schema = @Schema(implementation = UserGetResponse.class)))
             )
     })
-    @PreAuthorize("hasRole('ADMIN')") // Configurando autorização diretamente nos métodos. Só funciona se usar @EnableMethodSecurity no topo da classe do bean de configuração de segurança.
+    @PreAuthorize("hasAuthority('ADMIN')") // Configurando autorização diretamente nos métodos. Só funciona se usar @EnableMethodSecurity no topo da classe do bean de configuração de segurança.
     public ResponseEntity<List<UserGetResponse>> findAll(@RequestParam(required = false) String firstName) {
         log.debug("Request received to list all users, params name {}", firstName);
 
