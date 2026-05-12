@@ -19,12 +19,12 @@ threads:
   virtual:
     enabled: true
 
-logging:
+logging: # os dois comentados são da aula 96 - logging query parameters
   level:
     academy.devdojo: debug
-#   net.ttddyy.dsproxy.listener: debug
 #   org.hibernate.orm.jdbc.bind: trace
-# os dois comentados são da aula 96 - logging query parameters
+#   net.ttddyy.dsproxy.listener: debug
+    org.springframework.security: debug
 
 server:
   port: 8090
