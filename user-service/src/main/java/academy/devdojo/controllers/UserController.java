@@ -21,6 +21,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,6 +48,7 @@ public class UserController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, array = @ArraySchema(schema = @Schema(implementation = UserGetResponse.class)))
             )
     })
+    @PreAuthorize("hasRole('ADMIN')") // Configurando autorização diretamente nos métodos. Só funciona se usar @EnableMethodSecurity no topo da classe do bean de configuração de segurança.
     public ResponseEntity<List<UserGetResponse>> findAll(@RequestParam(required = false) String firstName) {
         log.debug("Request received to list all users, params name {}", firstName);
 
