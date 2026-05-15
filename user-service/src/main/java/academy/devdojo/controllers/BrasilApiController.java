@@ -1,12 +1,13 @@
 package academy.devdojo.controllers;
 
-import academy.devdojo.config.BrasilApiConfigurationProperties;
+import academy.devdojo.response.CepGetResponse;
+import academy.devdojo.service.BrasilApiService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,13 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "basicAuth")
 public class BrasilApiController {
+    private final BrasilApiService service;
 
-    private final BrasilApiConfigurationProperties brasilApiConfigurationProperties;
-
-    @GetMapping
-    public ResponseEntity<Void> findCep() {
+    @GetMapping("/{cep}")
+    public ResponseEntity<CepGetResponse> findCep(@PathVariable String cep) {
         log.info("Request received to find cep");
-        log.info("base-url {}, cepUri {}", brasilApiConfigurationProperties.baseUrl(), brasilApiConfigurationProperties.cepUri());
-        return ResponseEntity.noContent().build();
+        var cepGetResponse = service.findCep(cep);
+        return ResponseEntity.ok(cepGetResponse);
     }
 }
+
+// algumas opções para fazer integração com APIs externas: restTemplate, webClient, restClient, etc.
