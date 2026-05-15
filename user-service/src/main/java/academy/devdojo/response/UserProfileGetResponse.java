@@ -21,3 +21,5 @@ public class UserProfileGetResponse {
 }
 
 // não fazer vinculos entre DTOS, ou seja, não usar um dto dentro de um dto
+
+// Esses records aninhados só existem no escopo dessa classe, fora deles não dá pra criar eles, seria necessário extrair pra fora dessa classe
