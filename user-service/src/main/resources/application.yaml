@@ -39,4 +39,12 @@ server:
     threads:
       max: 20
 
+management: # habilitando todos os endpoints do actuator
+  server: # geralmente o actuator roda em uma porta diferente
+    port: 8989
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
 # Essas variáveis de ambiente estão no arquivo .env do mesmo diretório
