@@ -15,6 +15,10 @@ server:
     include-message: always
     include-binding-errors: always
 
+brasil-api: # mudando a url pra garantir que de jeito nenhum vai ter uma chamada de verdade
+  base-url: https://localhost:8085/api
+  cep-uri:  /cep/v1/{cep}
+
 # Os testes podem apagar os dados do bd,
 # por isso é recomendado utilizar outro banco de dados para eles.
 
