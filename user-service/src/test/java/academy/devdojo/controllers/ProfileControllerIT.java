@@ -81,6 +81,8 @@ class ProfileControllerIT {
 
     @Test
     @DisplayName("POST v1/profiles creates a profile")
+    @Sql(value = "/sql/profile/init_two_profiles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(value = "/sql/profile/clean_profiles.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @Order(3)
     void save_CreatesProfile_WhenSuccessfully() throws Exception {
         var request = fileUtils.readResourceFile("profile/post-request-profile-200.json");
