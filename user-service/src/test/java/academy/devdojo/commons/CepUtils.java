@@ -1,6 +1,5 @@
 package academy.devdojo.commons;
 
-import academy.devdojo.domain.User;
 import academy.devdojo.response.CepErrorResponse;
 import academy.devdojo.response.CepGetResponse;
 import academy.devdojo.response.CepInnerErrorResponse;

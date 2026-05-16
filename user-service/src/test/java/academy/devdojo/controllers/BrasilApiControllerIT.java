@@ -3,7 +3,6 @@ package academy.devdojo.controllers;
 import academy.devdojo.commons.FileUtils;
 import academy.devdojo.config.IntegrationTestConfig;
 import academy.devdojo.config.RestAssuredConfig;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
