@@ -14,11 +14,12 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
 threads:
   virtual:
     enabled: true
-
+  flyway:
+    enabled: true
 logging: # os dois comentados são da aula 96 - logging query parameters
   level:
     academy.devdojo: debug
